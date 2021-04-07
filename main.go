@@ -14,13 +14,15 @@ import (
 )
 
 var (
-	addr      = flag.String("addr", ":6060", "TCP address to listen to")
-	compress  = flag.Bool("compress", true, "Whether to enable transparent response compression")
-	useTls    = flag.Bool("tls", false, "Whether to enable TLS")
-	tlsCert   = flag.String("cert", "", "Full certificate file path")
-	tlsKey    = flag.String("key", "", "Full key file path")
-	authToken = []byte(ReadFileUnsafe("token", true))
-	fsFolder  = "filesystem/"
+	addr         = flag.String("addr", ":6060", "TCP address to listen to")
+	compress     = flag.Bool("compress", true, "Whether to enable transparent response compression")
+	useTls       = flag.Bool("tls", false, "Whether to enable TLS")
+	tlsCert      = flag.String("cert", "", "Full certificate file path")
+	tlsKey       = flag.String("key", "", "Full key file path")
+	authToken    = []byte(ReadFileUnsafe("token", true))
+	fsFolder     = "filesystem/"
+	publicFolder = "filesystem/public/"
+	ownerPerm    = os.FileMode(0700)
 )
 
 func main() {
@@ -101,6 +103,12 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
 
 func HandleWriteFile(ctx *fasthttp.RequestCtx, file string) {
 	content := ctx.Request.Header.Peek("X-File-Content")
+	cf := ctx.Request.Header.Peek("X-Create-Folder")
+
+	if len(cf) != 0 {
+		HandleCreateFolder(ctx, file, cf)
+		return
+	}
 
 	if len(content) == 0 {
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
@@ -250,6 +258,23 @@ func HandleDeleteFile(ctx *fasthttp.RequestCtx, file string) {
 	} else {
 		HandleInternalServerError(ctx, err)
 	}
+}
+
+func HandleCreateFolder(ctx *fasthttp.RequestCtx, file string, cf []byte) {
+	if string(cf) != "true" {
+		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
+		fmt.Fprint(ctx, "400 Invalid X-Create-Folder\n")
+		return
+	}
+
+	err := os.Mkdir(file, ownerPerm)
+
+	if err != nil {
+		HandleInternalServerError(ctx, err)
+		return
+	}
+
+	// TODO: Print folder path
 }
 
 func HandleForbidden(ctx *fasthttp.RequestCtx) {
