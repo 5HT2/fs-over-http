@@ -81,6 +81,25 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	}
 }
 
+func HandleWriteFile(ctx *fasthttp.RequestCtx, file string) {
+	content := ctx.Request.Header.Peek("X-File-Content")
+
+	if len(content) == 0 {
+		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
+		fmt.Fprint(ctx, "400 Missing X-File-Content\n")
+		return
+	}
+
+	err := WriteToFile(file, JoinStr(string(content), "\n"))
+
+	if err != nil {
+		HandleInternalServerError(ctx, err)
+		return
+	}
+
+	fmt.Fprint(ctx, "200 Success\n")
+}
+
 func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 	isDir, err := IsDirectory(file)
 
@@ -163,25 +182,6 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 	} else {
 		HandleForbidden(ctx)
 	}
-}
-
-func HandleWriteFile(ctx *fasthttp.RequestCtx, file string) {
-	content := ctx.Request.Header.Peek("X-File-Content")
-
-	if len(content) == 0 {
-		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		fmt.Fprint(ctx, "400 Missing X-File-Content\n")
-		return
-	}
-
-	err := WriteToFile(file, JoinStr(string(content), "\n"))
-
-	if err != nil {
-		HandleInternalServerError(ctx, err)
-		return
-	}
-
-	fmt.Fprint(ctx, "200 Success\n")
 }
 
 func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {
