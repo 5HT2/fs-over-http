@@ -51,6 +51,12 @@ curl -X GET -H "Auth: $TOKEN" localhost:6060/myfile.txt
 # I created this file with http!
 ```
 
+#### Upload a file
+
+```bash
+curl -X POST -H "Auth: $TOKEN" localhost:6060/someimage.png -F "file=@$HOME/Downloads/myimage.jpg"
+```
+
 #### Write to a file
 
 ```bash
@@ -73,5 +79,5 @@ curl -X DELETE -H "Auth: $TOKEN" localhost:6060/myfile.txt
 
 ## TODO:
 
-- [ ] Binary file support
+- [x] Binary file support
 - [ ] Custom shell for interacting
