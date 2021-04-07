@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"unicode/utf8"
 )
 
@@ -211,18 +210,28 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 		return
 	}
 
-	if err == nil {
-		switch {
-		case strings.HasSuffix(file, ".css"):
-			ctx.Response.Header.Set(fasthttp.HeaderContentType, "text/css; charset=utf-8")
-		case strings.HasSuffix(file, ".html"):
-			ctx.Response.Header.Set(fasthttp.HeaderContentType, "text/html; charset=utf-8")
-		}
-
-		fmt.Fprint(ctx, content)
-	} else {
-		HandleForbidden(ctx)
+	if err != nil {
+		HandleInternalServerError(ctx, err)
+		return
 	}
+
+	// Open the file and handle errors
+	f, err := os.Open(file)
+	if err != nil {
+		HandleInternalServerError(ctx, err)
+		return
+	}
+	defer f.Close()
+
+	// Get the contentType
+	contentType, err := GetFileContentTypeExt(f, file)
+	if err != nil {
+		HandleInternalServerError(ctx, err)
+		return
+	}
+
+	ctx.Response.Header.Set(fasthttp.HeaderContentType, contentType)
+	fmt.Fprint(ctx, content)
 }
 
 func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {

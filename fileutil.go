@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
+	"path/filepath"
 )
 
 func ReadFileUnsafe(file string, removeNewline bool) string {
@@ -54,4 +54,39 @@ func IsDirectory(path string) (bool, error) {
 	} else {
 		return false, nil
 	}
+}
+
+func GetFileContentTypeExt(out *os.File, file string) (string, error) {
+	ext := filepath.Ext(file)
+
+	switch ext {
+	case ".txt", ".text":
+		return "text/plain", nil
+	case ".htm", ".html":
+		return "text/html", nil
+	case ".css":
+		return "text/css", nil
+	case ".js":
+		return "application/javascript", nil
+	}
+
+	return GetFileContentType(out)
+}
+
+// GetFileContentType detects the content type
+// and returns a valid MIME type
+func GetFileContentType(out *os.File) (string, error) {
+	// Only the first 512 bytes are used to sniff the content type.
+	buffer := make([]byte, 512)
+
+	_, err := out.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+
+	// Use the net/http package's handy DetectContentType function. Always returns a valid
+	// content-type by returning "application/octet-stream" if no others seemed to match.
+	contentType := http.DetectContentType(buffer)
+
+	return contentType, nil
 }
