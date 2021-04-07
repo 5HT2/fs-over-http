@@ -69,7 +69,7 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 
 	switch string(ctx.Request.Header.Method()) {
 	case fasthttp.MethodPost:
-		HandleWriteFile(ctx, filePath)
+		HandlePostRequest(ctx, filePath)
 	case fasthttp.MethodGet:
 		HandleServeFile(ctx, filePath)
 	case fasthttp.MethodPut:
@@ -79,6 +79,24 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	default:
 		HandleForbidden(ctx)
 	}
+}
+
+func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
+	fh, err := ctx.FormFile("file")
+
+	if err != nil {
+		HandleWriteFile(ctx, file)
+		return
+	}
+
+	err = fasthttp.SaveMultipartFile(fh, file)
+
+	if err != nil {
+		HandleInternalServerError(ctx, err)
+		return
+	}
+
+	fmt.Fprint(ctx, "200 Success\n")
 }
 
 func HandleWriteFile(ctx *fasthttp.RequestCtx, file string) {
