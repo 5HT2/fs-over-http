@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -14,8 +16,7 @@ func ReadFileUnsafe(file string, removeNewline bool) string {
 		return content
 	}
 
-	cb := []byte(content)
-	lastByte := cb[len(cb)-1]
+	lastByte, cb := LastByte(content)
 
 	if removeNewline && lastByte == 10 {
 		cb = cb[:len(cb)-1]

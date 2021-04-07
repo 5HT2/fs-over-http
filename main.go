@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 	"unicode/utf8"
 )
@@ -304,22 +303,4 @@ func HandleInternalServerError(ctx *fasthttp.RequestCtx, err error) {
 	ctx.Response.SetStatusCode(fasthttp.StatusInternalServerError)
 	fmt.Fprintf(ctx, "500 %v\n", err)
 	log.Printf("- Returned 500 to %s with error %v", ctx.RemoteIP(), err)
-}
-
-func JoinStr(str string, suffix string) string {
-	strArr := []string{str, suffix}
-	return strings.Join(strArr, "")
-}
-
-func TrimFirstRune(s string) string {
-	_, i := utf8.DecodeRuneInString(s)
-	return s[i:]
-}
-
-func Grammar(amount int, singular string, multiple string) string {
-	if amount != 1 {
-		return strings.Join([]string{strconv.Itoa(amount), multiple}, " ")
-	} else {
-		return strings.Join([]string{strconv.Itoa(amount), singular}, " ")
-	}
 }
