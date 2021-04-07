@@ -57,6 +57,12 @@ curl -X GET -H "Auth: $TOKEN" localhost:6060/myfile.txt
 curl -X POST -H "Auth: $TOKEN" localhost:6060/someimage.png -F "file=@$HOME/Downloads/myimage.jpg"
 ```
 
+#### Create a folder
+
+```bash
+curl -X POST -H "Auth: $TOKEN" localhost:6060/myfolder -H "X-Create-Folder: true"
+```
+
 #### Write to a file
 
 ```bash
