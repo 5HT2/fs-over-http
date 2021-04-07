@@ -80,4 +80,5 @@ curl -X DELETE -H "Auth: $TOKEN" localhost:6060/myfile.txt
 ## TODO:
 
 - [x] Binary file support
+- [ ] Allow marking a folder as public
 - [ ] Custom shell for interacting
