@@ -28,12 +28,21 @@ var (
 func main() {
 	flag.Parse()
 
-	// If folder does not exist
+	// If fsFolder does not exist
 	if _, err := os.Stat(fsFolder); os.IsNotExist(err) {
-		err := os.Mkdir(fsFolder, 0700)
+		err := os.Mkdir(fsFolder, ownerPerm)
 
 		if err != nil {
 			log.Fatalf("- Error making fsFolder - %v", err)
+		}
+	}
+
+	// If publicFolder does not exist
+	if _, err := os.Stat(publicFolder); os.IsNotExist(err) {
+		err := os.Mkdir(publicFolder, ownerPerm)
+
+		if err != nil {
+			log.Fatalf("- Error making publicFolder - %v", err)
 		}
 	}
 
@@ -57,17 +66,23 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set(fasthttp.HeaderServer, "fs-over-http")
 
 	// The authentication key provided with said Auth header
-	header := ctx.Request.Header.Peek("Auth")
-
-	// Make sure Auth key is correct
-	if !bytes.Equal(header, authToken) {
-		HandleForbidden(ctx)
-		return
-	}
+	auth := ctx.Request.Header.Peek("Auth")
 
 	// requestPath is prefixed with a /
 	path := TrimFirstRune(string(ctx.Path()))
 	filePath := JoinStr(fsFolder, path)
+
+	if len(auth) == 0 {
+		filePath = JoinStr(publicFolder, path)
+		HandleServeFile(ctx, filePath)
+		return
+	}
+
+	// Make sure Auth key is correct
+	if !bytes.Equal(auth, authToken) {
+		HandleForbidden(ctx)
+		return
+	}
 
 	switch string(ctx.Request.Header.Method()) {
 	case fasthttp.MethodPost:
