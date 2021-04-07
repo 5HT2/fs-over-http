@@ -164,7 +164,8 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 		filesAmt := len(files)
 		// No files in dir
 		if filesAmt == 0 {
-			ctx.Response.SetStatusCode(fasthttp.StatusNoContent)
+			fmt.Fprintf(ctx, "%s\n\n", file)
+			fmt.Fprintf(ctx, "0 directories, 0 files\n")
 			return
 		}
 
