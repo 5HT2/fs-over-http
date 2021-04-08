@@ -118,6 +118,14 @@ appendfile() { curl -X PUT -H "Auth: $TOKEN" "localhost:6060/$1" -H "X-File-Cont
 rm() { curl -X DELETE -H "Auth: $TOKEN" "localhost:6060/$1"; }
 ```
 
+#### Screenshot uploader
+
+There is a screenshot uploader example in the `scripts` folder.
+
+You will have to add the token in your `~/.profile` and edit the arguments that you want.
+
+I have the keybinds assigned in my KDE custom commands, it allows you to run anything you want with a keyboard shortcut. For non-KDE you'll have to find your own way.
+
 ## TODO:
 
 - [x] Binary file support
