@@ -36,8 +36,9 @@ The printed response will always either be
 - The file contents, or a tree output
 - The error message thrown on a non-200 response
 
-- The only time you will get a file contents, or a tree output, as a response is on a GET request.
-- The only time you will get an error message is on a non-200 response.
+The only time you will get a file contents, or a tree output, as a response is on a GET request.
+
+The only time you will get an error message is on a non-200 response.
 
 #### Read a file or directory
 
