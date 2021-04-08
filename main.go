@@ -69,7 +69,7 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	path := TrimFirstRune(string(ctx.Path()))
 	filePath := JoinStr(fsFolder, path)
 
-	if len(auth) == 0 {
+	if len(auth) == 0 && ctx.IsGet() {
 		filePath = JoinStr(publicFolder, path)
 		HandleServeFile(ctx, filePath)
 		return
