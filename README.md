@@ -70,7 +70,7 @@ curl -X POST -H "Auth: $TOKEN" localhost:6060/someimage.png -F "file=@$HOME/Down
 #### Create a folder
 
 ```bash
-curl -X POST -H "Auth: $TOKEN" localhost:6060/myfolder -H "X-Create-Folder: true"
+curl -X POST -H "Auth: $TOKEN" localhost:6060/my_folder -H "X-Create-Folder: true"
 ```
 
 #### Write to a file
@@ -91,6 +91,30 @@ curl -X PUT -H "Auth: $TOKEN" localhost:6060/myfile.txt -H "X-File-Content: I ap
 
 ```bash
 curl -X DELETE -H "Auth: $TOKEN" localhost:6060/myfile.txt
+```
+
+#### Quick aliases
+
+Alternatively, if you'd like, here's a bunch of bash aliases you can use with examples
+
+```bash
+# get owo.txt
+get() { curl -X GET -H "Auth: $TOKEN" "localhost:6060/$1"; }
+
+# upload someimage.png ~/Pictures/someimage.png
+upload() { curl -X POST -H "Auth: $TOKEN" "localhost:6060/$1" -F "file=@$(echo "$2" | sed "s/~/\$HOME/g")"; }
+
+# mkdir my_folder
+mkdir() { curl -X POST -H "Auth: $TOKEN" "localhost:6060/$1" -H "X-Create-Folder: true"; }
+
+# mkfile myfile.txt "I created this file with http!"
+mkfile() { curl -X POST -H "Auth: $TOKEN" "localhost:6060/$1" -H "X-File-Content: $2"; }
+
+# appendfile myfile.txt "I appended content to this file with http!"
+appendfile() { curl -X PUT -H "Auth: $TOKEN" "localhost:6060/$1" -H "X-File-Content: $2"; }
+
+# rm myfile.txt
+rm() { curl -X DELETE -H "Auth: $TOKEN" "localhost:6060/$1"; }
 ```
 
 ## TODO:
