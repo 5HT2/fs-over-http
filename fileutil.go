@@ -66,7 +66,7 @@ func GetFileContentTypeExt(out *os.File, file string) (string, error) {
 		return "text/html", nil
 	case ".css":
 		return "text/css", nil
-	case ".js":
+	case ".js", ".mjs":
 		return "application/javascript", nil
 	}
 
