@@ -147,6 +147,8 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 	}
 
 	if isDir {
+		ctx.Response.Header.Set(fasthttp.HeaderContentType, "text/filelist")
+
 		file = AddLastRune(file, '/')
 
 		files, err := ioutil.ReadDir(file)
