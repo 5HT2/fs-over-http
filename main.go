@@ -19,6 +19,7 @@ var (
 	authToken    = []byte(ReadFileUnsafe("token", true))
 	fsFolder     = "filesystem/"
 	publicFolder = "filesystem/public/"
+	disallowed   = ReadNonEmptyLines("private_folders")
 	ownerPerm    = os.FileMode(0700)
 )
 
@@ -70,6 +71,11 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	filePath := JoinStr(fsFolder, path)
 
 	if len(auth) == 0 && ctx.IsGet() {
+		if Contains(disallowed, RemoveLastRune(path, '/')) {
+			HandleForbidden(ctx)
+			return
+		}
+
 		filePath = JoinStr(publicFolder, path)
 		HandleServeFile(ctx, filePath)
 		return

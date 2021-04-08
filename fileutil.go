@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -89,4 +90,41 @@ func GetFileContentType(out *os.File) (string, error) {
 	contentType := http.DetectContentType(buffer)
 
 	return contentType, nil
+}
+
+// ReadLines reads a whole file into memory
+// and returns a slice of its lines.
+func ReadLines(path string) ([]string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	return lines, scanner.Err()
+}
+
+// ReadNonEmptyLines reads non-empty lines
+// using ReadLines and a filter.
+func ReadNonEmptyLines(file string) (ret []string) {
+	lines, err := ReadLines(file)
+
+	if err != nil {
+		return []string{}
+	}
+
+	for _, s := range lines {
+		lastByte, _ := LastByte(s)
+
+		if len(s) > 1 || lastByte != 10 {
+			ret = append(ret, s)
+		}
+	}
+
+	return ret
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sort"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -56,9 +57,17 @@ func Grammar(amount int, singular string, multiple string) string {
 	}
 }
 
+// TODO: This breaks if the string is empty
+
 // LastByte returns the last byte of a byte array
 // and also returns the string as a byte array
 func LastByte(s string) (byte, []byte) {
 	b := []byte(s)
 	return b[len(b)-1], b
+}
+
+// TODO: This breaks if the slice contains blank spaces
+func Contains(s []string, term string) bool {
+	i := sort.SearchStrings(s, term)
+	return i < len(s) && s[i] == term
 }
