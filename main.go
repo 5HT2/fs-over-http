@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"unicode/utf8"
 )
 
 var (
@@ -111,7 +110,7 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
 		return
 	}
 
-	fmt.Fprint(ctx, "200 Success\n")
+	fmt.Fprint(ctx, RemoveLastRune(file, '/'))
 }
 
 func HandleWriteFile(ctx *fasthttp.RequestCtx, file string) {
@@ -136,7 +135,7 @@ func HandleWriteFile(ctx *fasthttp.RequestCtx, file string) {
 		return
 	}
 
-	fmt.Fprint(ctx, "200 Success\n")
+	fmt.Fprint(ctx, RemoveLastRune(file, '/'))
 }
 
 func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
@@ -148,11 +147,7 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 	}
 
 	if isDir {
-		// Append / as last rune, if last rune is not / and is dir
-		r, _ := utf8.DecodeLastRuneInString(file)
-		if r != '/' {
-			file = JoinStr(file, "/")
-		}
+		file = AddLastRune(file, '/')
 
 		files, err := ioutil.ReadDir(file)
 		if err != nil {
@@ -180,7 +175,7 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 
 			if f.IsDir() {
 				tFolders++
-				fn = JoinStr(fn, "/")
+				fn = AddLastRune(fn, '/')
 			} else {
 				tFiles++
 			}
@@ -262,7 +257,7 @@ func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {
 		return
 	}
 
-	fmt.Fprint(ctx, "200 Success\n")
+	fmt.Fprint(ctx, RemoveLastRune(file, '/'))
 }
 
 func HandleDeleteFile(ctx *fasthttp.RequestCtx, file string) {
@@ -277,7 +272,7 @@ func HandleDeleteFile(ctx *fasthttp.RequestCtx, file string) {
 		if err != nil {
 			HandleInternalServerError(ctx, err)
 		} else {
-			fmt.Fprint(ctx, "200 Success\n")
+			fmt.Fprint(ctx, RemoveLastRune(file, '/'))
 		}
 	} else {
 		HandleInternalServerError(ctx, err)
@@ -298,7 +293,7 @@ func HandleCreateFolder(ctx *fasthttp.RequestCtx, file string, cf []byte) {
 		return
 	}
 
-	// TODO: Print folder path
+	fmt.Fprint(ctx, AddLastRune(file, '/'))
 }
 
 func HandleForbidden(ctx *fasthttp.RequestCtx) {

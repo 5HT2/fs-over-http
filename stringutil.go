@@ -6,14 +6,46 @@ import (
 	"unicode/utf8"
 )
 
-func JoinStr(str string, suffix string) string {
-	strArr := []string{str, suffix}
-	return strings.Join(strArr, "")
+// AddLastRune will check the last rune of a string,
+// if the last rune does not match, it will append the rune,
+// and return the fixed string
+func AddLastRune(str string, rune rune) (fixed string) {
+	fixed = str
+
+	r, _ := utf8.DecodeLastRuneInString(str)
+	if r != rune {
+		fixed = JoinStr(str, string(rune))
+	}
+
+	return fixed
 }
 
+func RemoveLastRune(str string, rune rune) (fixed string) {
+	fixed = str
+
+	r, _ := utf8.DecodeLastRuneInString(str)
+	if r == rune {
+		fixed = TrimLastRune(str)
+	}
+
+	return fixed
+}
+
+// TrimFirstRune will remove the first rune in a string
 func TrimFirstRune(s string) string {
 	_, i := utf8.DecodeRuneInString(s)
 	return s[i:]
+}
+
+// TrimLastRune will remove the last rune in a string
+func TrimLastRune(s string) string {
+	s = s[:len(s)-1]
+	return s
+}
+
+func JoinStr(str string, suffix string) string {
+	strArr := []string{str, suffix}
+	return strings.Join(strArr, "")
 }
 
 func Grammar(amount int, singular string, multiple string) string {

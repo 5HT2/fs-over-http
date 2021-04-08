@@ -29,6 +29,16 @@ echo "$AUTH" > token
 
 All files are stored inside the `filesystem` folder, which is automatically created inside the working directory of fs-over-http.
 
+### Response examples
+
+The printed response will always either be
+- The file path
+- The file contents, or a tree output
+- The error message thrown on a non-200 response
+
+- The only time you will get a file contents, or a tree output, as a response is on a GET request.
+- The only time you will get an error message is on a non-200 response.
+
 #### Read a file or directory
 
 ```bash
@@ -86,5 +96,5 @@ curl -X DELETE -H "Auth: $TOKEN" localhost:6060/myfile.txt
 ## TODO:
 
 - [x] Binary file support
-- [ ] Allow marking a folder as public
+- [x] Allow marking a folder as public
 - [ ] Custom shell for interacting
