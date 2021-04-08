@@ -18,10 +18,10 @@ format="-region"
 
 # Allow -a / -m / custom args
 if [ ! -z "$1" ]; then
-	format="$1"
+    format="$1"
 fi
 
-spectacle -p "$format" -b -n -o="$filepath" >/dev/null 2>&1 
+spectacle "$format" -p -b -n -o="$filepath" >/dev/null 2>&1 
 
 # Wait for spectacle to finish saving the file
 while [ ! -f "$filepath" ]; do
