@@ -131,3 +131,4 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
 - [x] Binary file support
 - [x] Allow marking a folder as public
 - [ ] Custom shell for interacting
+- [ ] Ratelimit for public folders
