@@ -1,17 +1,36 @@
 #!/bin/bash
 
 # Usage:
-# screenshot    ## take a selection screenshot
-# screenshot -a ## take a screenshot of the active window
-# screenshot -m ## take a screenshot of the active monitor
+# screenshot                ## take a selection screenshot
+# screenshot -a             ## take a screenshot of the active window
+# screenshot -m             ## take a screenshot of the active monitor
+# screenshot "" --fancyurl  ## An optional second arg to use a shorter fancy URL type
 
 source ~/.profile
 
 TOKEN="$FOH_SERVER_AUTH"
 URL="https://i.l1v.in"
+APP_NAME="i.l1v.in"
 
+# Set default filename and path
 filename="$(date +"%Y-%m-%d-%T.png")"
+filename_date="$filename"
 filepath="$HOME/pictures/screenshots/$filename"
+
+# Set the fancy url filename and filepath
+if [ "$2" == "--fancyurl" ]; then
+    array=("." "¨" "·" "˙" "•" "‥" "…" "∴" "∵" "∶" "∷" "⋮" "⋯" "⋰" "⋱" "⋅" "⋆" "∘")
+    size=${#array[@]}
+    filename=""
+
+    # Generate 7 chars, 612,220,032 possible combinations
+    for i in {0..6}; do
+        index=$(($RANDOM % $size))
+        filename+="${array[$index]}"
+    done
+
+    filename+=".png"
+fi
 
 # Default argument is a selection screenshot
 format="-region"
@@ -25,7 +44,7 @@ spectacle "$format" -p -b -n -o="$filepath" >/dev/null 2>&1
 
 # Wait for spectacle to finish saving the file
 while [ ! -f "$filepath" ]; do
-    sleep 0.1
+    sleep 0.2
 done
 
 # Upload the screenshot
@@ -34,4 +53,4 @@ RESPONSE=$(curl -s -X POST -H "Auth: $TOKEN" "$URL/public/i/$filename" -F "file=
 # Copy the screenshot URL to clipboard
 printf "$URL/$(echo "$RESPONSE" | sed "s/^filesystem\/public\///g")" | xclip -sel clip
 
-notify-send "Saved screenshot" "$filename" --icon=spectacle --app-name="i.l1v.in"
+notify-send "Saved screenshot" "$filename_date" --icon=spectacle --app-name="$APP_NAME"
