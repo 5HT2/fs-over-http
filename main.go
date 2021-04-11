@@ -16,6 +16,7 @@ var (
 	useTls       = flag.Bool("tls", false, "Whether to enable TLS")
 	tlsCert      = flag.String("cert", "", "Full certificate file path")
 	tlsKey       = flag.String("key", "", "Full key file path")
+	maxBodySize  = flag.Int("maxbodysize", 100*1024*1024, "MaxRequestBodySize, defaults to 100MiB")
 	authToken    = []byte(ReadFileUnsafe("token", true))
 	fsFolder     = "filesystem/"
 	publicFolder = "filesystem/public/"
@@ -49,20 +50,31 @@ func main() {
 		h = fasthttp.CompressHandler(h)
 	}
 
+	// TODO: Switch over to using something similar to https://github.com/alessiosavi/GoDiffBinary/blob/7a8d35a20e38b14268b9840a4f9631f537a4dfea/api/api.go#L15
+	// Instead of the manual RequestHandler that we have going
+
+	// The gzipHandler will serve a compress request only if the client request it with headers (Content-Type: gzip, deflate)
+	// Compress data before sending (if requested by the client)
+	gzipHandler := fasthttp.CompressHandlerLevel(h, fasthttp.CompressBestCompression)
+
+	s := &fasthttp.Server{
+		Handler:            gzipHandler,
+		Name:               "fs-over-http",
+		MaxRequestBodySize: *maxBodySize,
+	}
+
 	if *useTls && len(*tlsCert) > 0 && len(*tlsKey) > 0 {
-		if err := fasthttp.ListenAndServeTLS(*addr, *tlsCert, *tlsKey, h); err != nil {
+		if err := s.ListenAndServeTLS(*addr, *tlsCert, *tlsKey); err != nil {
 			log.Fatalf("- Error in ListenAndServeTLS: %s", err)
 		}
 	} else {
-		if err := fasthttp.ListenAndServe(*addr, h); err != nil {
+		if err := s.ListenAndServe(*addr); err != nil {
 			log.Fatalf("- Error in ListenAndServe: %s", err)
 		}
 	}
 }
 
 func RequestHandler(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.Set(fasthttp.HeaderServer, "fs-over-http")
-
 	// The authentication key provided with said Auth header
 	auth := ctx.Request.Header.Peek("Auth")
 
