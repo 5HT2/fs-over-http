@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"github.com/valyala/fasthttp"
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
+
+	"github.com/valyala/fasthttp"
 )
 
 var (
@@ -324,6 +326,11 @@ func HandleForbidden(ctx *fasthttp.RequestCtx) {
 
 func HandleInternalServerError(ctx *fasthttp.RequestCtx, err error) {
 	ctx.Response.SetStatusCode(fasthttp.StatusInternalServerError)
-	fmt.Fprintf(ctx, "500 %v\n", err)
-	log.Printf("- Returned 500 to %s with error %v", ctx.RemoteIP(), err)
+	if strings.Contains(err.Error(), "no such file or directory") {
+		fmt.Fprintf(ctx, "404 %v\n", err)
+		log.Printf("- Returned 404 to %s with error %v", ctx.RemoteIP(), err)
+	} else {
+		fmt.Fprintf(ctx, "500 %v\n", err)
+		log.Printf("- Returned 500 to %s with error %v", ctx.RemoteIP(), err)
+	}
 }
