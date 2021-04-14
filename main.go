@@ -126,7 +126,7 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
 	err = fasthttp.SaveMultipartFile(fh, file)
 
 	if err != nil {
-		HandleInternalServerError(ctx, err)
+		HandleError(ctx, err)
 		return
 	}
 
@@ -151,7 +151,7 @@ func HandleWriteFile(ctx *fasthttp.RequestCtx, file string) {
 	err := WriteToFile(file, JoinStr(string(content), "\n"))
 
 	if err != nil {
-		HandleInternalServerError(ctx, err)
+		HandleError(ctx, err)
 		return
 	}
 
@@ -162,7 +162,7 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 	isDir, err := IsDirectory(file)
 
 	if err != nil {
-		HandleInternalServerError(ctx, err)
+		HandleError(ctx, err)
 		return
 	}
 
@@ -171,7 +171,7 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 
 		files, err := ioutil.ReadDir(file)
 		if err != nil {
-			HandleInternalServerError(ctx, err)
+			HandleError(ctx, err)
 			return
 		}
 
@@ -226,14 +226,14 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 	}
 
 	if err != nil {
-		HandleInternalServerError(ctx, err)
+		HandleError(ctx, err)
 		return
 	}
 
 	// Open the file and handle errors
 	f, err := os.Open(file)
 	if err != nil {
-		HandleInternalServerError(ctx, err)
+		HandleError(ctx, err)
 		return
 	}
 	defer f.Close()
@@ -241,7 +241,7 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 	// Get the contentType
 	contentType, err := GetFileContentTypeExt(f, file)
 	if err != nil {
-		HandleInternalServerError(ctx, err)
+		HandleError(ctx, err)
 		return
 	}
 
@@ -273,7 +273,7 @@ func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {
 	err = WriteToFile(file, contentStr)
 
 	if err != nil {
-		HandleInternalServerError(ctx, err)
+		HandleError(ctx, err)
 		return
 	}
 
@@ -290,12 +290,12 @@ func HandleDeleteFile(ctx *fasthttp.RequestCtx, file string) {
 		err = os.Remove(file)
 
 		if err != nil {
-			HandleInternalServerError(ctx, err)
+			HandleError(ctx, err)
 		} else {
 			fmt.Fprint(ctx, RemoveLastRune(file, '/'))
 		}
 	} else {
-		HandleInternalServerError(ctx, err)
+		HandleError(ctx, err)
 	}
 }
 
@@ -309,7 +309,7 @@ func HandleCreateFolder(ctx *fasthttp.RequestCtx, file string, cf []byte) {
 	err := os.Mkdir(file, ownerPerm)
 
 	if err != nil {
-		HandleInternalServerError(ctx, err)
+		HandleError(ctx, err)
 		return
 	}
 
@@ -324,13 +324,13 @@ func HandleForbidden(ctx *fasthttp.RequestCtx) {
 		ctx.RemoteIP(), ctx.Request.Header.Peek("Auth"), ctx.Path())
 }
 
-func HandleInternalServerError(ctx *fasthttp.RequestCtx, err error) {
+func HandleError(ctx *fasthttp.RequestCtx, err error) {
 	ctx.Response.SetStatusCode(fasthttp.StatusInternalServerError)
 	if strings.Contains(err.Error(), "no such file or directory") {
-		fmt.Fprintf(ctx, "404 %v\n", err)
+		ctx.Error("File not found", fasthttp.StatusNotFound)
 		log.Printf("- Returned 404 to %s with error %v", ctx.RemoteIP(), err)
 	} else {
-		fmt.Fprintf(ctx, "500 %v\n", err)
+		ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
 		log.Printf("- Returned 500 to %s with error %v", ctx.RemoteIP(), err)
 	}
 }
