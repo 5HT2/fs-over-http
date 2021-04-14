@@ -327,7 +327,7 @@ func HandleForbidden(ctx *fasthttp.RequestCtx) {
 func HandleError(ctx *fasthttp.RequestCtx, err error) {
 	ctx.Response.SetStatusCode(fasthttp.StatusInternalServerError)
 	if strings.Contains(err.Error(), "no such file or directory") {
-		ctx.Error("File not found", fasthttp.StatusNotFound)
+		ctx.Error(err.Error(), fasthttp.StatusNotFound)
 		log.Printf("- Returned 404 to %s with error %v", ctx.RemoteIP(), err)
 	} else {
 		ctx.Error("Internal Server Error", fasthttp.StatusInternalServerError)
