@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 )
 
 var (
@@ -180,6 +181,15 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 			fmt.Fprintf(ctx, "0 directories, 0 files\n")
 			return
 		}
+
+		// TODO: Make file sorting customizable
+		// Sort files by date
+		sort.Slice(files, func(i, j int) bool {
+			return files[i].ModTime().Before(files[j].ModTime())
+		})
+
+		// Sort to put folders first
+		sort.SliceStable(files, func(i, j int) bool { return files[i].IsDir() && !files[j].IsDir() })
 
 		// Print path name
 		fmt.Fprintf(ctx, "%s\n", file)
