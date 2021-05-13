@@ -10,6 +10,7 @@ source ~/.profile
 
 TOKEN="$FOH_SERVER_AUTH"
 URL="https://i.l1v.in"
+PIC_URL="https://p.l1v.in" # This is a reverse proxy to $URL/i/
 APP_NAME="i.l1v.in"
 
 # Set default filename and path
@@ -51,6 +52,6 @@ done
 RESPONSE=$(curl -s -X POST -H "Auth: $TOKEN" "$URL/public/i/$filename" -F "file=@$filepath")
 
 # Copy the screenshot URL to clipboard
-printf "$URL/$(echo "$RESPONSE" | sed "s/^filesystem\/public\///g")" | xclip -sel clip
+printf "$PIC_URL/$(echo "$RESPONSE" | sed "s/^filesystem\/public\/i\///g")" | xclip -sel clip
 
 notify-send "Saved screenshot" "$filename_date" --icon=spectacle --app-name="$APP_NAME"
