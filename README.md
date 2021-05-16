@@ -135,8 +135,6 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
 - [x] Binary file support
 - [x] Allow marking a folder as public
 - [ ] Custom shell for interacting
-- [ ] Ratelimit for public folders
-  - [ ] Should this be done on the reverse proxy side instead? (eg: Caddy)
 - [ ] Make `ls` sorting customizable
 - [ ] Partial Content support [(docs)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/206)
 - [ ] Switch `X-File-Content` to using forms
