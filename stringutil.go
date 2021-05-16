@@ -66,7 +66,7 @@ func LastByte(s string) (byte, []byte) {
 	return b[len(b)-1], b
 }
 
-// TODO: This breaks if the slice contains blank spaces
+// Contains TODO: This breaks if the slice contains blank spaces
 func Contains(s []string, term string) bool {
 	i := sort.SearchStrings(s, term)
 	return i < len(s) && s[i] == term
