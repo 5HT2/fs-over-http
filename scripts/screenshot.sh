@@ -6,7 +6,8 @@
 # screenshot -m             ## take a screenshot of the active monitor
 # screenshot "" --fancyurl  ## An optional second arg to use a shorter fancy URL type
 
-source ~/.profile
+# shellcheck disable=SC1091
+source "$HOME/.profile"
 
 TOKEN="$FOH_SERVER_AUTH"
 URL="https://i.l1v.in"
@@ -25,8 +26,8 @@ if [ "$2" == "--fancyurl" ]; then
     filename=""
 
     # Generate 7 chars, 612,220,032 possible combinations
-    for i in {0..6}; do
-        index=$(($RANDOM % $size))
+    for _ in {0..6}; do
+        index=$((RANDOM % size))
         filename+="${array[$index]}"
     done
 
@@ -37,7 +38,7 @@ fi
 format="-region"
 
 # Allow -a / -m / custom args
-if [ ! -z "$1" ]; then
+if [ -n "$1" ]; then
     format="$1"
 fi
 
@@ -52,6 +53,8 @@ done
 RESPONSE=$(curl -s -X POST -H "Auth: $TOKEN" "$URL/public/i/$filename" -F "file=@$filepath")
 
 # Copy the screenshot URL to clipboard
-printf "$PIC_URL/$(echo "$RESPONSE" | sed "s/^filesystem\/public\/i\///g")" | xclip -sel clip
+printf '%s/%s' "$PIC_URL" \
+    "$(echo "$RESPONSE" | sed "s/^filesystem\/public\/i\///g")" \
+    | xclip -sel clip
 
 notify-send "Saved screenshot" "$filename_date" --icon=spectacle --app-name="$APP_NAME"
