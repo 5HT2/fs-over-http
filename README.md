@@ -2,6 +2,10 @@
 
 A filesystem interface over http.
 
+**NOTE:** I wrote this when I was still learning Go, and as such many improvements can be made. 
+I have detailed what I would like to improve in the [TODO][#TODO:] section, with *Partial Content*,
+better *error handling* and *response syntax* being the main focus.
+
 ## Contributing
 
 Contributions to fix my code are welcome, as well as any improvements.
