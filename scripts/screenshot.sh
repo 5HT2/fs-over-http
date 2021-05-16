@@ -53,7 +53,8 @@ done
 RESPONSE=$(curl -s -X POST -H "Auth: $TOKEN" "$URL/public/i/$filename" -F "file=@$filepath")
 
 # Copy the screenshot URL to clipboard
-printf '%s/%s' "$PIC_URL" \
+printf '%s/%s' \
+    "$PIC_URL" \
     "$(echo "$RESPONSE" | sed "s/^filesystem\/public\/i\///g")" \
     | xclip -sel clip
 
