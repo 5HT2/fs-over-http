@@ -150,3 +150,6 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
 - [ ] JSON based API readouts
 - [ ] Add Docker image
   - [ ] Add CI service
+- [ ] Add Caddyfile example
+  - [ ] Maybe with rate limit options and the such
+  - [ ] Refactor docs about TLS
