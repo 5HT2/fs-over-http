@@ -3,7 +3,7 @@
 A filesystem interface over http.
 
 **NOTE:** I wrote this when I was still learning Go, and as such many improvements can be made. 
-I have detailed what I would like to improve in the [TODO](#TODO:) section, with *Partial Content*,
+I have detailed what I would like to improve in the [TODO](#todo) section, with *Partial Content*,
 better *error handling* and *response syntax* being the main focus.
 
 ## Contributing
@@ -130,7 +130,7 @@ You will have to add the token in your `~/.profile` and edit the arguments that 
 
 I have the keybinds assigned in my KDE custom commands, it allows you to run anything you want with a keyboard shortcut. For non-KDE you'll have to find your own way.
 
-## TODO:
+## TODO
 
 - [x] Binary file support
 - [x] Allow marking a folder as public
