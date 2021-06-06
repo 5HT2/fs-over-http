@@ -21,7 +21,7 @@ printf 'Type your paste and press \u001b[31mCtrl C\u001b[0m when finished\n'
 # Loop until keyboard interrupt
 trap printout SIGINT
 printout() {
-    echo "Uploading..."
+    printf '\nUploading...\n'
 
     # We want newlines to work here
     # shellcheck disable=SC2059
@@ -29,15 +29,14 @@ printout() {
 
     # Upload the screenshot
     RESPONSE=$(curl -s -X POST -H "Auth: $TOKEN" "$URL/public/media/$filename" -F "file=@$filepath")
+    FULL_URL="$CDN_URL/$(echo "$RESPONSE" | sed "s/^filesystem\/public\/media\///g")"
 
     # Copy the screenshot URL to clipboard
-    printf '%s/%s' \
-        "$CDN_URL" \
-        "$(echo "$RESPONSE" | sed "s/^filesystem\/public\/media\///g")" \
-        | xclip -sel clip
+    printf '%s' "$FULL_URL" | xclip -sel clip
+    echo "Uploaded $FULL_URL"
 
+    # Send notification after copying to clipboard
     notify-send "Uploaded paste" "$filename" --icon=clipboard --app-name="$APP_NAME"
-    rm "$filepath"
     exit
 }
 while read -r line
