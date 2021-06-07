@@ -2,6 +2,8 @@
 
 # Usage:
 # paste
+# paste < tmp.log
+# cat tmp.log | paste
 
 # shellcheck disable=SC1091
 source "$HOME/.profile"
