@@ -11,7 +11,7 @@ source "$HOME/.profile"
 
 TOKEN="$FOH_SERVER_AUTH"
 URL="https://i.l1v.in"
-PIC_URL="https://p.l1v.in" # This is a reverse proxy to $URL/i/
+PIC_URL="https://frogg.ie" # This is a reverse proxy to $URL/i/
 APP_NAME="i.l1v.in"
 
 # Set default filename and path
