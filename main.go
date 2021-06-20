@@ -33,7 +33,7 @@ func main() {
 		protocol += "s"
 	}
 
-	log.Printf("- Running heartbeat on " + protocol + "://" + *addr)
+	log.Printf("- Running fs-over-http on " + protocol + "://" + *addr)
 
 	// If fsFolder does not exist
 	if _, err := os.Stat(fsFolder); os.IsNotExist(err) {
