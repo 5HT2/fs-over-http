@@ -15,7 +15,7 @@ func AddLastRune(str string, rune rune) (fixed string) {
 
 	r, _ := utf8.DecodeLastRuneInString(str)
 	if r != rune {
-		fixed = JoinStr(str, string(rune))
+		fixed = str + string(rune)
 	}
 
 	return fixed
@@ -42,11 +42,6 @@ func TrimFirstRune(s string) string {
 func TrimLastRune(s string) string {
 	s = s[:len(s)-1]
 	return s
-}
-
-func JoinStr(str string, suffix string) string {
-	strArr := []string{str, suffix}
-	return strings.Join(strArr, "")
 }
 
 func Grammar(amount int, singular string, multiple string) string {

@@ -143,7 +143,7 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
   - [ ] Read 512 bytes at a time like [so](https://pkg.go.dev/github.com/valyala/fasthttp#RequestCtx.SetBodyStream).
 - [ ] Move error handling to ListenAndServe instead of individually sending the error
   - [ ] Switch to using `X-Error-Message` instead of printing it out, add a newline end of normal responses
-- [ ] Refactor use of JoinStr to `fmt.Sprintf/Sprintln` and `+`
+- [x] Refactor use of JoinStr to `fmt.Sprintf/Sprintln` and `+`
 - [ ] Set `ReadTimeout` and `WriteTimeout` to prevent abuse
 - [ ] JSON based API readouts
 - [ ] Add Docker image

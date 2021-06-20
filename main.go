@@ -81,7 +81,7 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 
 	// requestPath is prefixed with a /
 	path := TrimFirstRune(string(ctx.Path()))
-	filePath := JoinStr(fsFolder, path)
+	filePath := fsFolder + path
 
 	if len(auth) == 0 && ctx.IsGet() {
 		if Contains(disallowed, RemoveLastRune(path, '/')) {
@@ -89,7 +89,7 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 			return
 		}
 
-		filePath = JoinStr(publicFolder, path)
+		filePath = publicFolder + path
 		HandleServeFile(ctx, filePath)
 		return
 	}
@@ -147,7 +147,7 @@ func HandleWriteFile(ctx *fasthttp.RequestCtx, file string) {
 		return
 	}
 
-	err := WriteToFile(file, JoinStr(string(content), "\n"))
+	err := WriteToFile(file, string(content)+"\n")
 
 	if err != nil {
 		HandleInternalServerError(ctx, err)
@@ -271,11 +271,11 @@ func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {
 		return
 	}
 
-	contentStr := JoinStr(string(content), "\n")
+	contentStr := string(content) + "\n"
 	oldContent, err := ReadFile(file)
 
 	if err == nil {
-		contentStr = JoinStr(oldContent, contentStr)
+		contentStr = oldContent + contentStr
 	}
 
 	err = WriteToFile(file, contentStr)
