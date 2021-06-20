@@ -35,23 +35,9 @@ func main() {
 
 	log.Printf("- Running fs-over-http on " + protocol + "://" + *addr)
 
-	// If fsFolder does not exist
-	if _, err := os.Stat(fsFolder); os.IsNotExist(err) {
-		err := os.Mkdir(fsFolder, ownerPerm)
-
-		if err != nil {
-			log.Fatalf("- Error making fsFolder - %v", err)
-		}
-	}
-
-	// If publicFolder does not exist
-	if _, err := os.Stat(publicFolder); os.IsNotExist(err) {
-		err := os.Mkdir(publicFolder, ownerPerm)
-
-		if err != nil {
-			log.Fatalf("- Error making publicFolder - %v", err)
-		}
-	}
+	// If fsFolder or publicFolder don't exist
+	SafeMkdir(fsFolder)
+	SafeMkdir(publicFolder)
 
 	h := RequestHandler
 	if *compress {

@@ -130,3 +130,13 @@ func ReadNonEmptyLines(file string) (ret []string) {
 
 	return ret
 }
+
+func SafeMkdir(dir string) {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err := os.Mkdir(dir, ownerPerm)
+
+		if err != nil {
+			log.Fatalf("- Error making '%s' - %v", dir, err)
+		}
+	}
+}
