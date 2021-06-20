@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	addr         = flag.String("addr", ":6060", "TCP address to listen to")
+	addr         = flag.String("addr", "localhost:6060", "TCP address to listen to")
 	compress     = flag.Bool("compress", true, "Whether to enable transparent response compression")
 	useTls       = flag.Bool("tls", false, "Whether to enable TLS")
 	tlsCert      = flag.String("cert", "", "Full certificate file path")
@@ -27,6 +27,13 @@ var (
 
 func main() {
 	flag.Parse()
+
+	protocol := "http"
+	if *useTls {
+		protocol += "s"
+	}
+
+	log.Printf("- Running heartbeat on " + protocol + "://" + *addr)
 
 	// If fsFolder does not exist
 	if _, err := os.Stat(fsFolder); os.IsNotExist(err) {
