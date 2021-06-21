@@ -109,20 +109,6 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 }
 
 func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
-	// If a file was provided, save it and return
-	fh, err := ctx.FormFile("file")
-	if err == nil {
-		err = fasthttp.SaveMultipartFile(fh, file)
-
-		if err != nil {
-			HandleInternalServerError(ctx, err)
-			return
-		}
-
-		fmt.Fprint(ctx, RemoveLastRune(file, '/'))
-		return
-	}
-
 	// If the dir key was provided, create that directory inside fsFolder
 	dir := ctx.FormValue("dir")
 	if len(dir) > 0 {
@@ -149,6 +135,26 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
 		return
 	}
 
+	// If not making a directory, don't allow writing directly to fsFolder
+	if file == fsFolder {
+		HandleNotAllowed(ctx, "Cannot POST on path \""+fsFolder+"\"")
+		return
+	}
+
+	// If a file was provided, save it and return
+	fh, err := ctx.FormFile("file")
+	if err == nil {
+		err = fasthttp.SaveMultipartFile(fh, file)
+
+		if err != nil {
+			HandleInternalServerError(ctx, err)
+			return
+		}
+
+		fmt.Fprint(ctx, RemoveLastRune(file, '/'))
+		return
+	}
+
 	// If the content key was provided, write to said file
 	content := ctx.FormValue("content")
 	if len(content) > 0 {
@@ -164,8 +170,7 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
 	}
 
 	// If none of the if statements passed, send a 400
-	ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-	fmt.Fprint(ctx, "400 Missing 'file' or 'dir' or 'content' form\n")
+	HandleGeneric(ctx, fasthttp.StatusBadRequest, "Missing 'file' or 'dir' or 'content' form")
 }
 
 func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
@@ -269,17 +274,15 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 }
 
 func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {
-	// If the content key was not provided, return an error
-	content := ctx.FormValue("content")
-
-	if len(content) == 0 {
-		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		fmt.Fprint(ctx, "400 Missing 'content' form\n")
+	if file == fsFolder {
+		HandleNotAllowed(ctx, "Cannot PUT on path \""+fsFolder+"\"")
 		return
 	}
 
-	if file == fsFolder {
-		HandleForbidden(ctx)
+	content := ctx.FormValue("content")
+	// If the content key was not provided, return an error
+	if len(content) == 0 {
+		HandleGeneric(ctx, fasthttp.StatusBadRequest, "Missing 'content' form")
 		return
 	}
 
@@ -302,7 +305,7 @@ func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {
 
 func HandleDeleteFile(ctx *fasthttp.RequestCtx, file string) {
 	if file == fsFolder {
-		HandleForbidden(ctx)
+		HandleNotAllowed(ctx, "Cannot DELETE on path \""+fsFolder+"\"")
 		return
 	}
 
@@ -317,18 +320,4 @@ func HandleDeleteFile(ctx *fasthttp.RequestCtx, file string) {
 	} else {
 		HandleInternalServerError(ctx, err)
 	}
-}
-
-func HandleForbidden(ctx *fasthttp.RequestCtx) {
-	ctx.Response.SetStatusCode(fasthttp.StatusForbidden)
-	fmt.Fprint(ctx, "403 Forbidden\n")
-	log.Printf(
-		"- Returned 403 to %s - tried to connect with '%s' to '%s'",
-		ctx.RemoteIP(), ctx.Request.Header.Peek("Auth"), ctx.Path())
-}
-
-func HandleInternalServerError(ctx *fasthttp.RequestCtx, err error) {
-	ctx.Response.SetStatusCode(fasthttp.StatusInternalServerError)
-	fmt.Fprintf(ctx, "500 %v\n", err)
-	log.Printf("- Returned 500 to %s with error %v", ctx.RemoteIP(), err)
 }
