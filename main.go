@@ -188,15 +188,15 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 
 		files, err := ioutil.ReadDir(file)
 
+		if err != nil {
+			HandleInternalServerError(ctx, err)
+			return
+		}
+
 		// Don't list private folders
 		if public {
 			filter := func(s fs.FileInfo) bool { return !Contains(privateDirs, RemoveLastRune(file+s.Name(), '/')) }
 			files = Filter(files, filter)
-		}
-
-		if err != nil {
-			HandleInternalServerError(ctx, err)
-			return
 		}
 
 		filesAmt := len(files)
@@ -207,11 +207,15 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 			return
 		}
 
-		// TODO: Make file sorting customizable
-		// Sort files by date
-		sort.Slice(files, func(i, j int) bool {
-			return files[i].ModTime().Before(files[j].ModTime())
-		})
+		sortType := ctx.QueryArgs().Peek("sort")
+
+		if string(sortType) == "date" {
+			// TODO: Make file sorting customizable
+			// Sort files by date
+			sort.Slice(files, func(i, j int) bool {
+				return files[i].ModTime().Before(files[j].ModTime())
+			})
+		}
 
 		// Sort to put folders first
 		sort.SliceStable(files, func(i, j int) bool { return files[i].IsDir() && !files[j].IsDir() })

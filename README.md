@@ -33,7 +33,22 @@ echo "$AUTH" > token
 
 All files are stored inside the `filesystem` folder, which is automatically created inside the working directory of fs-over-http.
 
+### Query Args
+
+Supported query args and their values:
+
+- [ ] `sort`
+  - [x] `date` (supported)
+  - [ ] `reverse` (planned)
+  
+- [ ] `format`
+  - [x] `plain` (supported)
+  - [ ] `json` (planned)
+  - [ ] `visual` (planned)
+
 ### Response examples
+
+TODO: Organize these
 
 The printed response will always either be
 - The file path
@@ -135,7 +150,6 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
 - [x] Binary file support
 - [x] Allow marking a folder as public
 - [ ] Custom shell for interacting
-- [ ] Make `ls` sorting customizable
 - [ ] Partial Content support [(docs)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/206)
 - [x] Switch `X-File-Content` to using forms
   - [x] eg: `curl -X POST -H "Auth: $TOKEN" -d 'content=File content' localhost:6060/file.txt`
@@ -145,7 +159,6 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
   - [ ] Switch to using `X-Error-Message` instead of printing it out, add a newline end of normal responses
 - [x] Refactor use of JoinStr to `fmt.Sprintf/Sprintln` and `+`
 - [ ] Set `ReadTimeout` and `WriteTimeout` to prevent abuse
-- [ ] JSON based API readouts
 - [ ] Add Docker image
   - [ ] Add CI service
 - [ ] Add Caddyfile example
