@@ -75,21 +75,21 @@ curl -X POST -H "Auth: $TOKEN" localhost:6060/someimage.png -F "file=@$HOME/Down
 #### Create a folder
 
 ```bash
-curl -X POST -H "Auth: $TOKEN" localhost:6060/my_folder -H "X-Create-Folder: true"
+curl -X POST -H "Auth: $TOKEN" localhost:6060 -F "dir=my_folder"
 ```
 
 #### Write to a file
 
 ```bash
 # Note that this will overwrite an existing file
-curl -X POST -H "Auth: $TOKEN" localhost:6060/myfile.txt -H "X-File-Content: I created this file with http!"
+curl -X POST -H "Auth: $TOKEN" localhost:6060/myfile.txt -F "content=I created this file with http!"
 ```
 
 #### Append to a file
 
 ```bash
 # Note that this append to an existing file, and create a new file if one does not exist
-curl -X PUT -H "Auth: $TOKEN" localhost:6060/myfile.txt -H "X-File-Content: I appended content to this file with http!"
+curl -X PUT -H "Auth: $TOKEN" localhost:6060/myfile.txt -F "content=I appended content to this file with http!"
 ```
 
 #### Delete a file
@@ -110,13 +110,13 @@ get() { curl -X GET -H "Auth: $TOKEN" "localhost:6060/$1"; }
 upload() { curl -X POST -H "Auth: $TOKEN" "localhost:6060/$1" -F "file=@$(echo "$2" | sed "s/~/\$HOME/g")"; }
 
 # mkdir my_folder
-mkdir() { curl -X POST -H "Auth: $TOKEN" "localhost:6060/$1" -H "X-Create-Folder: true"; }
+mkdir() { curl -X POST -H "Auth: $TOKEN" "localhost:6060" -F "dir=$1"; }
 
 # mkfile myfile.txt "I created this file with http!"
-mkfile() { curl -X POST -H "Auth: $TOKEN" "localhost:6060/$1" -H "X-File-Content: $2"; }
+mkfile() { curl -X POST -H "Auth: $TOKEN" "localhost:6060/$1" -F "content=$2"; }
 
 # appendfile myfile.txt "I appended content to this file with http!"
-appendfile() { curl -X PUT -H "Auth: $TOKEN" "localhost:6060/$1" -H "X-File-Content: $2"; }
+appendfile() { curl -X PUT -H "Auth: $TOKEN" "localhost:6060/$1" -F "content=$2"; }
 
 # rm myfile.txt
 rm() { curl -X DELETE -H "Auth: $TOKEN" "localhost:6060/$1"; }
