@@ -110,7 +110,7 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	}
 }
 
-func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
+func HandlePostRequest(ctx *fasthttp.RequestCtx, path string) {
 	// If the dir key was provided, create that directory inside fsFolder
 	dir := ctx.FormValue("dir")
 	if len(dir) > 0 {
@@ -133,41 +133,41 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
 			return
 		}
 
-		fmt.Fprint(ctx, AddLastRune(dirStr, '/'))
+		PrintResponsePath(ctx, path, true)
 		return
 	}
 
 	// If not making a directory, don't allow writing directly to fsFolder
-	if file == fsFolder {
-		HandleNotAllowed(ctx, "Cannot POST on path \""+fsFolder+"\"")
+	if path == fsFolder {
+		HandleModifyFsFolder(ctx)
 		return
 	}
 
 	// If a file was provided, save it and return
 	fh, err := ctx.FormFile("file")
 	if err == nil {
-		err = fasthttp.SaveMultipartFile(fh, file)
+		err = fasthttp.SaveMultipartFile(fh, path)
 
 		if err != nil {
 			HandleInternalServerError(ctx, err)
 			return
 		}
 
-		fmt.Fprint(ctx, RemoveLastRune(file, '/'))
+		PrintResponsePath(ctx, path, false)
 		return
 	}
 
 	// If the content key was provided, write to said file
 	content := ctx.FormValue("content")
 	if len(content) > 0 {
-		err = WriteToFile(file, strings.ReplaceAll(string(content), "\\n", "\n"))
+		err = WriteToFile(path, strings.ReplaceAll(string(content), "\\n", "\n"))
 
 		if err != nil {
 			HandleInternalServerError(ctx, err)
 			return
 		}
 
-		fmt.Fprint(ctx, RemoveLastRune(file, '/'))
+		PrintResponsePath(ctx, path, false)
 		return
 	}
 
@@ -175,8 +175,8 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
 	HandleGeneric(ctx, fasthttp.StatusBadRequest, "Missing 'file' or 'dir' or 'content' form")
 }
 
-func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
-	isDir, err := IsDirectory(file)
+func HandleServeFile(ctx *fasthttp.RequestCtx, path string, public bool) {
+	isDir, err := IsDirectory(path)
 
 	if err != nil {
 		HandleInternalServerError(ctx, err)
@@ -184,9 +184,9 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 	}
 
 	if isDir {
-		file = AddLastRune(file, '/')
+		path = AddLastRune(path, '/')
 
-		files, err := ioutil.ReadDir(file)
+		files, err := ioutil.ReadDir(path)
 
 		if err != nil {
 			HandleInternalServerError(ctx, err)
@@ -195,14 +195,14 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 
 		// Don't list private folders
 		if public {
-			filter := func(s fs.FileInfo) bool { return !Contains(privateDirs, RemoveLastRune(file+s.Name(), '/')) }
+			filter := func(s fs.FileInfo) bool { return !Contains(privateDirs, RemoveLastRune(path+s.Name(), '/')) }
 			files = Filter(files, filter)
 		}
 
 		filesAmt := len(files)
 		// No files in dir
 		if filesAmt == 0 {
-			fmt.Fprintf(ctx, "%s\n\n", file)
+			fmt.Fprintf(ctx, "%s\n\n", path)
 			fmt.Fprintf(ctx, "0 directories, 0 files\n")
 			return
 		}
@@ -221,11 +221,12 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 		sort.SliceStable(files, func(i, j int) bool { return files[i].IsDir() && !files[j].IsDir() })
 
 		// Print path name
-		fmt.Fprintf(ctx, "%s\n", file)
+		fmt.Fprintf(ctx, "%s\n", path)
 
 		tFiles, tFolders, cFile := 0, 0, 0
 		lineRune := "├── "
 
+		// Print each file
 		for _, f := range files {
 			cFile++
 			fn := f.Name()
@@ -254,7 +255,7 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 		return
 	}
 
-	content, err := ReadFile(file)
+	content, err := ReadFile(path)
 
 	// File is empty
 	if len(content) == 0 {
@@ -268,7 +269,7 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 	}
 
 	// Open the file and handle errors
-	f, err := os.Open(file)
+	f, err := os.Open(path)
 	if err != nil {
 		HandleInternalServerError(ctx, err)
 		return
@@ -276,19 +277,20 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 	defer f.Close()
 
 	// Get the contentType
-	contentType, err := GetFileContentTypeExt(f, file)
+	contentType, err := GetFileContentTypeExt(f, path)
 	if err != nil {
 		HandleInternalServerError(ctx, err)
 		return
 	}
 
+	// Serve the file itself
 	ctx.Response.Header.Set(fasthttp.HeaderContentType, contentType)
 	fmt.Fprint(ctx, content)
 }
 
-func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {
-	if file == fsFolder {
-		HandleNotAllowed(ctx, "Cannot PUT on path \""+fsFolder+"\"")
+func HandleAppendFile(ctx *fasthttp.RequestCtx, path string) {
+	if path == fsFolder {
+		HandleModifyFsFolder(ctx)
 		return
 	}
 
@@ -300,37 +302,46 @@ func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {
 	}
 
 	contentStr := string(content) + "\n"
-	oldContent, err := ReadFile(file)
+	oldContent, err := ReadFile(path)
 
 	if err == nil {
 		contentStr = oldContent + contentStr
 	}
 
-	err = WriteToFile(file, contentStr)
+	err = WriteToFile(path, contentStr)
 
 	if err != nil {
 		HandleInternalServerError(ctx, err)
 		return
 	}
 
-	fmt.Fprint(ctx, RemoveLastRune(file, '/'))
+	PrintResponsePath(ctx, path, false)
 }
 
-func HandleDeleteFile(ctx *fasthttp.RequestCtx, file string) {
-	if file == fsFolder {
-		HandleNotAllowed(ctx, "Cannot DELETE on path \""+fsFolder+"\"")
+func HandleDeleteFile(ctx *fasthttp.RequestCtx, path string) {
+	if path == fsFolder {
+		HandleModifyFsFolder(ctx)
 		return
 	}
 
-	if _, err := os.Stat(file); err == nil {
-		err = os.Remove(file)
+	if _, err := os.Stat(path); err == nil {
+		err = os.Remove(path)
 
 		if err != nil {
 			HandleInternalServerError(ctx, err)
 		} else {
-			fmt.Fprint(ctx, RemoveLastRune(file, '/'))
+			PrintResponsePath(ctx, path, false)
 		}
 	} else {
 		HandleInternalServerError(ctx, err)
+	}
+}
+
+func PrintResponsePath(ctx *fasthttp.RequestCtx, path string, folder bool) {
+	ctx.Response.Header.Set("X-Server-Message", "200 Success")
+	if folder {
+		ctx.Response.Header.Set("X-Modified-Path", AddLastRune(path, '/')+"\n")
+	} else {
+		ctx.Response.Header.Set("X-Modified-Path", RemoveLastRune(path, '/')+"\n")
 	}
 }

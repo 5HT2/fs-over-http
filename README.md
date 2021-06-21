@@ -38,26 +38,23 @@ All files are stored inside the `filesystem` folder, which is automatically crea
 Supported query args and their values:
 
 - [ ] `sort`
+  - [ ] `name` (supported & default)
   - [x] `date` (supported)
   - [ ] `reverse` (planned)
   
 - [ ] `format`
-  - [x] `plain` (supported)
+  - [x] `plain` (supported & default)
   - [ ] `json` (planned)
   - [ ] `visual` (planned)
 
 ### Response examples
 
-TODO: Organize these
+Read the `X-Server-Message` header to get the response message. 
 
-The printed response will always either be
-- The file path
-- The file contents, or a tree output
-- The error message thrown on a non-200 response
+Read the `X-Modified-Path` header to get the successfully modified path (eg POST / PUT / DELETE).
+If the path is a folder it will end with `/`, otherwise it will not end in a `/`.
 
-The only time you will get a file contents, or a tree output, as a response is on a GET request.
-
-The only time you will get an error message is on a non-200 response.
+The only time you will get an error message as output instead of GET contents is on a non-200 response.
 
 #### Read a file or directory
 
