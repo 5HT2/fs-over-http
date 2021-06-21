@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strings"
 )
 
 var (
@@ -108,46 +109,63 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 }
 
 func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
+	// If a file was provided, save it and return
 	fh, err := ctx.FormFile("file")
+	if err == nil {
+		err = fasthttp.SaveMultipartFile(fh, file)
 
-	if err != nil {
-		HandleWriteFile(ctx, file)
+		if err != nil {
+			HandleInternalServerError(ctx, err)
+			return
+		}
+
+		fmt.Fprint(ctx, RemoveLastRune(file, '/'))
 		return
 	}
 
-	err = fasthttp.SaveMultipartFile(fh, file)
+	// If the dir key was provided, create that directory inside fsFolder
+	dir := ctx.FormValue("dir")
+	if len(dir) > 0 {
+		dirStr := string(dir)
+		// Remove all "/" and "." before the path
+		for {
+			dirStr = RemoveFirstRune(dirStr, '/')
+			dirStr = RemoveFirstRune(dirStr, '.')
+			if !strings.HasPrefix(dirStr, "/") && !strings.HasPrefix(dirStr, ".") {
+				break
+			}
+		}
 
-	if err != nil {
-		HandleInternalServerError(ctx, err)
+		// Add fsFolder as a prefix, we don't want the user to be able to make folders outside of it
+		dirStr = fsFolder + dirStr
+		err := os.MkdirAll(dirStr, ownerPerm)
+
+		if err != nil {
+			HandleInternalServerError(ctx, err)
+			return
+		}
+
+		fmt.Fprint(ctx, AddLastRune(dirStr, '/'))
 		return
 	}
 
-	fmt.Fprint(ctx, RemoveLastRune(file, '/'))
-}
+	// If the content key was provided, write to said file
+	content := ctx.FormValue("content")
+	if len(content) > 0 {
+		err = WriteToFile(file, strings.ReplaceAll(string(content), "\\n", "\n"))
 
-func HandleWriteFile(ctx *fasthttp.RequestCtx, file string) {
-	content := ctx.Request.Header.Peek("X-File-Content")
-	cf := ctx.Request.Header.Peek("X-Create-Folder")
+		if err != nil {
+			HandleInternalServerError(ctx, err)
+			return
+		}
 
-	if len(cf) != 0 {
-		HandleCreateFolder(ctx, file, cf)
+		fmt.Fprint(ctx, RemoveLastRune(file, '/'))
 		return
 	}
 
-	if len(content) == 0 {
-		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		fmt.Fprint(ctx, "400 Missing X-File-Content\n")
-		return
-	}
-
-	err := WriteToFile(file, string(content)+"\n")
-
-	if err != nil {
-		HandleInternalServerError(ctx, err)
-		return
-	}
-
-	fmt.Fprint(ctx, RemoveLastRune(file, '/'))
+	// If none of the if statements passed, send a 400
+	ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
+	fmt.Fprint(ctx, "400 Missing 'file' or 'dir' or 'content' form\n")
 }
 
 func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
@@ -251,11 +269,12 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 }
 
 func HandleAppendFile(ctx *fasthttp.RequestCtx, file string) {
-	content := ctx.Request.Header.Peek("X-File-Content")
+	// If the content key was not provided, return an error
+	content := ctx.FormValue("content")
 
 	if len(content) == 0 {
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		fmt.Fprint(ctx, "400 Missing X-File-Content\n")
+		fmt.Fprint(ctx, "400 Missing 'content' form\n")
 		return
 	}
 
@@ -298,23 +317,6 @@ func HandleDeleteFile(ctx *fasthttp.RequestCtx, file string) {
 	} else {
 		HandleInternalServerError(ctx, err)
 	}
-}
-
-func HandleCreateFolder(ctx *fasthttp.RequestCtx, file string, cf []byte) {
-	if string(cf) != "true" {
-		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		fmt.Fprint(ctx, "400 Invalid X-Create-Folder\n")
-		return
-	}
-
-	err := os.Mkdir(file, ownerPerm)
-
-	if err != nil {
-		HandleInternalServerError(ctx, err)
-		return
-	}
-
-	fmt.Fprint(ctx, AddLastRune(file, '/'))
 }
 
 func HandleForbidden(ctx *fasthttp.RequestCtx) {

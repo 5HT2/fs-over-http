@@ -137,9 +137,9 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
 - [ ] Custom shell for interacting
 - [ ] Make `ls` sorting customizable
 - [ ] Partial Content support [(docs)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/206)
-- [ ] Switch `X-File-Content` to using forms
-  - [ ] eg: `curl -X POST -H "Auth: $TOKEN" -d 'content=File content' localhost:6060/file.txt`
-  - [ ] Switch folder creation to same syntax with empty `content`
+- [x] Switch `X-File-Content` to using forms
+  - [x] eg: `curl -X POST -H "Auth: $TOKEN" -d 'content=File content' localhost:6060/file.txt`
+  - [x] Switch folder creation to same syntax with empty `content`
   - [ ] Read 512 bytes at a time like [so](https://pkg.go.dev/github.com/valyala/fasthttp#RequestCtx.SetBodyStream).
 - [ ] Move error handling to ListenAndServe instead of individually sending the error
   - [ ] Switch to using `X-Error-Message` instead of printing it out, add a newline end of normal responses
