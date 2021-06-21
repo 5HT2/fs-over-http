@@ -339,6 +339,8 @@ func HandleDeleteFile(ctx *fasthttp.RequestCtx, path string) {
 
 func PrintResponsePath(ctx *fasthttp.RequestCtx, path string, folder bool) {
 	ctx.Response.Header.Set("X-Server-Message", "200 Success")
+	path = strings.TrimPrefix(path, "filesystem/")
+
 	if folder {
 		ctx.Response.Header.Set("X-Modified-Path", AddLastRune(path, '/')+"\n")
 	} else {
