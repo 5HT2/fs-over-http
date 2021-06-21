@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -113,7 +114,7 @@ func ReadLines(path string) ([]string, error) {
 
 // ReadNonEmptyLines reads non-empty lines
 // using ReadLines and a filter.
-func ReadNonEmptyLines(file string) (ret []string) {
+func ReadNonEmptyLines(file string, prefix string) (ret []string) {
 	lines, err := ReadLines(file)
 
 	if err != nil {
@@ -123,8 +124,9 @@ func ReadNonEmptyLines(file string) (ret []string) {
 	for _, s := range lines {
 		lastByte, _ := LastByte(s)
 
+		// If not a blank line
 		if len(s) > 1 || lastByte != 10 {
-			ret = append(ret, s)
+			ret = append(ret, prefix+s)
 		}
 	}
 
@@ -139,4 +141,13 @@ func SafeMkdir(dir string) {
 			log.Fatalf("- Error making '%s' - %v", dir, err)
 		}
 	}
+}
+
+func Filter(ss []fs.FileInfo, test func(fs.FileInfo) bool) (ret []fs.FileInfo) {
+	for _, s := range ss {
+		if test(s) {
+			ret = append(ret, s)
+		}
+	}
+	return
 }

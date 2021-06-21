@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/valyala/fasthttp"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"os"
@@ -22,7 +23,7 @@ var (
 	authToken    = []byte(ReadFileUnsafe("token", true))
 	fsFolder     = "filesystem/"
 	publicFolder = "filesystem/public/"
-	disallowed   = ReadNonEmptyLines("private_folders")
+	privateDirs  = ReadNonEmptyLines("private_folders", publicFolder)
 	ownerPerm    = os.FileMode(0700)
 )
 
@@ -78,13 +79,14 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	filePath := fsFolder + path
 
 	if len(auth) == 0 && ctx.IsGet() {
-		if Contains(disallowed, RemoveLastRune(path, '/')) {
-			HandleForbidden(ctx)
+		filePath = publicFolder + path
+
+		if Contains(privateDirs, RemoveLastRune(filePath, '/')) {
+			HandleGeneric(ctx, fasthttp.StatusNotFound, "Not Found")
 			return
 		}
 
-		filePath = publicFolder + path
-		HandleServeFile(ctx, filePath)
+		HandleServeFile(ctx, filePath, true)
 		return
 	}
 
@@ -95,10 +97,10 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	switch string(ctx.Request.Header.Method()) {
+	case fasthttp.MethodGet:
+		HandleServeFile(ctx, filePath, false)
 	case fasthttp.MethodPost:
 		HandlePostRequest(ctx, filePath)
-	case fasthttp.MethodGet:
-		HandleServeFile(ctx, filePath)
 	case fasthttp.MethodPut:
 		HandleAppendFile(ctx, filePath)
 	case fasthttp.MethodDelete:
@@ -173,7 +175,7 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, file string) {
 	HandleGeneric(ctx, fasthttp.StatusBadRequest, "Missing 'file' or 'dir' or 'content' form")
 }
 
-func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
+func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 	isDir, err := IsDirectory(file)
 
 	if err != nil {
@@ -185,6 +187,13 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string) {
 		file = AddLastRune(file, '/')
 
 		files, err := ioutil.ReadDir(file)
+
+		// Don't list private folders
+		if public {
+			filter := func(s fs.FileInfo) bool { return !Contains(privateDirs, RemoveLastRune(file+s.Name(), '/')) }
+			files = Filter(files, filter)
+		}
+
 		if err != nil {
 			HandleInternalServerError(ctx, err)
 			return
