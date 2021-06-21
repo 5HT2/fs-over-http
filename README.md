@@ -152,4 +152,4 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
   - [ ] Maybe with rate limit options and the such
   - [ ] Refactor docs about TLS
 - [ ] Encoding of uploading text-based files (eg the ● character)
-- [ ] Replace usage of `io/ioutil` with `io/fs` 
+- [x] Replace usage of `io/ioutil` with `io/fs` 

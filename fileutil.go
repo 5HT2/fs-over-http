@@ -29,7 +29,7 @@ func ReadFileUnsafe(file string, removeNewline bool) string {
 }
 
 func ReadFile(file string) (string, error) {
-	dat, err := ioutil.ReadFile(file)
+	dat, err := fs.ReadFile(nil, file)
 	return string(dat), err
 }
 
@@ -143,7 +143,7 @@ func SafeMkdir(dir string) {
 	}
 }
 
-func Filter(ss []fs.FileInfo, test func(fs.FileInfo) bool) (ret []fs.FileInfo) {
+func Filter(ss []fs.DirEntry, test func(fs.DirEntry) bool) (ret []fs.DirEntry) {
 	for _, s := range ss {
 		if test(s) {
 			ret = append(ret, s)

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/valyala/fasthttp"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"os"
 	"sort"
@@ -186,11 +185,11 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 	if isDir {
 		file = AddLastRune(file, '/')
 
-		files, err := ioutil.ReadDir(file)
+		files, err := fs.ReadDir(nil, file)
 
 		// Don't list private folders
 		if public {
-			filter := func(s fs.FileInfo) bool { return !Contains(privateDirs, RemoveLastRune(file+s.Name(), '/')) }
+			filter := func(s fs.DirEntry) bool { return !Contains(privateDirs, RemoveLastRune(file+s.Name(), '/')) }
 			files = Filter(files, filter)
 		}
 
@@ -210,7 +209,16 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, file string, public bool) {
 		// TODO: Make file sorting customizable
 		// Sort files by date
 		sort.Slice(files, func(i, j int) bool {
-			return files[i].ModTime().Before(files[j].ModTime())
+			info1, err1 := files[i].Info()
+			info2, err2 := files[j].Info()
+
+			// TODO: better error handling (ie panic here)
+			// If an error occurred while reading the file info
+			if err1 != nil || err2 != nil {
+				return true
+			}
+
+			return info1.ModTime().Before(info2.ModTime())
 		})
 
 		// Sort to put folders first
