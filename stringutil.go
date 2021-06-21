@@ -21,12 +21,25 @@ func AddLastRune(str string, rune rune) (fixed string) {
 	return fixed
 }
 
+// RemoveLastRune removes rune from str if str ends with rune
 func RemoveLastRune(str string, rune rune) (fixed string) {
 	fixed = str
 
 	r, _ := utf8.DecodeLastRuneInString(str)
 	if r == rune {
 		fixed = TrimLastRune(str)
+	}
+
+	return fixed
+}
+
+// RemoveFirstRune removes rune from str if str begins with rune
+func RemoveFirstRune(str string, rune rune) (fixed string) {
+	fixed = str
+
+	r, _ := utf8.DecodeRuneInString(str)
+	if r == rune {
+		fixed = TrimFirstRune(str)
 	}
 
 	return fixed
