@@ -143,7 +143,7 @@ func SafeMkdir(dir string) {
 	}
 }
 
-func Filter(ss []fs.DirEntry, test func(fs.DirEntry) bool) (ret []fs.DirEntry) {
+func Filter(ss []fs.FileInfo, test func(fs.FileInfo) bool) (ret []fs.FileInfo) {
 	for _, s := range ss {
 		if test(s) {
 			ret = append(ret, s)
