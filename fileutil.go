@@ -29,7 +29,7 @@ func ReadFileUnsafe(file string, removeNewline bool) string {
 }
 
 func ReadFile(file string) (string, error) {
-	dat, err := fs.ReadFile(nil, file)
+	dat, err := ioutil.ReadFile(file)
 	return string(dat), err
 }
 
