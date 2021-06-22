@@ -29,7 +29,20 @@ echo "$AUTH" > token
 ./fs-over-http -addr=localhost:6060
 ```
 
-### Production
+## Usage
+
+Please see [`USAGE.md`](https://github.com/l1ving/fs-over-http/blob/master/USAGE.md) for examples of interacting with
+a fs-over-http server.
+
+#### Screenshot uploader
+
+There is a screenshot uploader example in the `scripts` folder.
+
+You will have to add the token in your `~/.profile` and edit the arguments that you want.
+
+I have the keybinds assigned in my KDE custom commands, it allows you to run anything you want with a keyboard shortcut. For non-KDE you'll have to find your own way.
+
+#### Production
 
 I recommend using Caddy for automatic renewal + as a reverse proxy.
 ```
@@ -46,19 +59,6 @@ updating a live docker image.
 ```bash
 docker pull l1ving/fs-over-http:latest
 ```
-
-### Usage
-
-Please see [`USAGE.md`](https://github.com/l1ving/fs-over-http/blob/master/USAGE.md) for examples of interacting with 
-a fs-over-http server.
-
-#### Screenshot uploader
-
-There is a screenshot uploader example in the `scripts` folder.
-
-You will have to add the token in your `~/.profile` and edit the arguments that you want.
-
-I have the keybinds assigned in my KDE custom commands, it allows you to run anything you want with a keyboard shortcut. For non-KDE you'll have to find your own way.
 
 ## TODO
 
