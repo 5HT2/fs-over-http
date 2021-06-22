@@ -1,4 +1,8 @@
-# fs-over-http [![CodeFactor](https://www.codefactor.io/repository/github/l1ving/fs-over-http/badge)](https://www.codefactor.io/repository/github/l1ving/fs-over-http) [![time tracker](https://wakatime.com/badge/github/l1ving/fs-over-http.svg)](https://wakatime.com/badge/github/l1ving/fs-over-http) [![Docker Pulls](https://img.shields.io/docker/pulls/l1ving/fs-over-http)](https://hub.docker.com/r/l1ving/fs-over-http)
+# fs-over-http 
+[![CodeFactor](https://www.codefactor.io/repository/github/l1ving/fs-over-http/badge)](https://www.codefactor.io/repository/github/l1ving/fs-over-http) 
+[![time tracker](https://wakatime.com/badge/github/l1ving/fs-over-http.svg)](https://wakatime.com/badge/github/l1ving/fs-over-http) 
+[![Docker Pulls](https://img.shields.io/docker/pulls/l1ving/fs-over-http)](https://hub.docker.com/r/l1ving/fs-over-http)
+[![Docker Build](https://github.com/l1ving/fs-over-http/actions/workflows/docker-build.yml/badge.svg)](https://github.com/l1ving/fs-over-http/actions/workflows/docker-build.yml)
 
 A filesystem interface over http.
 
