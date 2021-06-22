@@ -1,5 +1,4 @@
-# fs-over-http 
-[![CodeFactor](https://www.codefactor.io/repository/github/l1ving/fs-over-http/badge)](https://www.codefactor.io/repository/github/l1ving/fs-over-http) 
+# fs-over-http [![CodeFactor](https://www.codefactor.io/repository/github/l1ving/fs-over-http/badge)](https://www.codefactor.io/repository/github/l1ving/fs-over-http) 
 [![time tracker](https://wakatime.com/badge/github/l1ving/fs-over-http.svg)](https://wakatime.com/badge/github/l1ving/fs-over-http) 
 ![Docker Pulls](https://img.shields.io/docker/pulls/l1ving/fs-over-http)
 
