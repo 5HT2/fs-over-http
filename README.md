@@ -75,7 +75,7 @@ docker pull l1ving/fs-over-http:latest
 - [x] Refactor use of JoinStr to `fmt.Sprintf/Sprintln` and `+`
 - [ ] Set `ReadTimeout` and `WriteTimeout` to prevent abuse
 - [x] Add Docker image
-  - [ ] Add CI service
+  - [x] Add CI service
 - [X] Add Caddyfile example
   - [ ] Maybe with rate limit options and the such
   - [X] Refactor docs about TLS
