@@ -181,3 +181,4 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
   - [X] Refactor docs about TLS
 - [ ] Encoding of uploading text-based files (eg the ● character)
 - [ ] Cleanup README
+- [ ] Fix scripts to use new format
