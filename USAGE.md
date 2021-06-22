@@ -79,6 +79,14 @@ curl -X PUT -H "Auth: $TOKEN" localhost:6060/myfile.txt -F "content=I appended c
 curl -X DELETE -H "Auth: $TOKEN" localhost:6060/myfile.txt
 ```
 
+#### Screenshot uploader
+
+There is a screenshot uploader example in the `scripts` folder.
+
+You will have to add the token in your `~/.profile` and edit the arguments that you want.
+
+I have the keybinds assigned in my KDE custom commands, it allows you to run anything you want with a keyboard shortcut. For non-KDE you'll have to find your own way.
+
 #### Quick aliases
 
 Alternatively, if you'd like, here's a bunch of bash aliases you can use with examples
