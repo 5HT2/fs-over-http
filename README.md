@@ -29,6 +29,23 @@ echo "$AUTH" > token
 ./fs-over-http -addr=localhost:6060 -compress=true
 ```
 
+### Production
+
+I recommend using Caddy for automatic renewal + as a reverse proxy.
+```
+# Caddyfile example
+i.l1v.in {
+  header Server Caddy "Nintendo Wii"
+  reverse_proxy localhost:6010
+}
+```
+
+There is also a docker image available with the following command, or checkout the `update.sh` script for automatically
+updating a live docker image.
+```bash
+docker pull l1ving/fs-over-http:latest
+```
+
 ## Usage
 
 All files are stored inside the `filesystem` folder, which is automatically created inside the working directory of fs-over-http.
@@ -158,7 +175,8 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
 - [ ] Set `ReadTimeout` and `WriteTimeout` to prevent abuse
 - [x] Add Docker image
   - [ ] Add CI service
-- [ ] Add Caddyfile example
+- [X] Add Caddyfile example
   - [ ] Maybe with rate limit options and the such
-  - [ ] Refactor docs about TLS
+  - [X] Refactor docs about TLS
 - [ ] Encoding of uploading text-based files (eg the ● character)
+- [ ] Cleanup README
