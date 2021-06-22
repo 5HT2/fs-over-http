@@ -73,7 +73,7 @@ curl -X POST -H "Auth: $TOKEN" localhost:6060/myfile.txt -F "content=I created t
 curl -X PUT -H "Auth: $TOKEN" localhost:6060/myfile.txt -F "content=I appended content to this file with http!"
 ```
 
-#### Delete a file
+#### Delete a file or folder
 
 ```bash
 curl -X DELETE -H "Auth: $TOKEN" localhost:6060/myfile.txt
