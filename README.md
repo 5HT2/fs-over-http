@@ -156,7 +156,7 @@ I have the keybinds assigned in my KDE custom commands, it allows you to run any
   - [x] Switch to using `X-Error-Message` instead of printing it out, add a newline end of normal responses
 - [x] Refactor use of JoinStr to `fmt.Sprintf/Sprintln` and `+`
 - [ ] Set `ReadTimeout` and `WriteTimeout` to prevent abuse
-- [ ] Add Docker image
+- [x] Add Docker image
   - [ ] Add CI service
 - [ ] Add Caddyfile example
   - [ ] Maybe with rate limit options and the such
