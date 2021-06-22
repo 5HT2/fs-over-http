@@ -5,4 +5,6 @@ ADD . /fs-over-http
 WORKDIR /fs-over-http
 
 RUN go build -o foh-bin .
-CMD ["/fs-over-http/foh-bin"]
+
+ENV maxbodysize 104857600
+CMD ["/fs-over-http/foh-bin", "-maxbodysize=$maxbodysize"]
