@@ -40,7 +40,8 @@ i.l1v.in {
 }
 ```
 
-There is also a docker image available with the following command, or checkout the `update.sh` script for automatically
+There is also a docker image available with the following command, or checkout the 
+(`update.sh`)[https://github.com/l1ving/fs-over-http/blob/master/scripts/update.sh] script for automatically
 updating a live docker image.
 ```bash
 docker pull l1ving/fs-over-http:latest
