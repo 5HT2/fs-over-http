@@ -36,7 +36,7 @@ I recommend using Caddy for automatic renewal + as a reverse proxy.
 # Caddyfile example
 i.l1v.in {
   header Server Caddy "Nintendo Wii"
-  reverse_proxy localhost:6010
+  reverse_proxy localhost:6060
 }
 ```
 
