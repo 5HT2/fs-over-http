@@ -83,7 +83,12 @@ curl -X DELETE -H "Auth: $TOKEN" localhost:6060/myfile.txt
 
 There is a screenshot uploader example in the `scripts` folder.
 
-You will have to add the token in your `~/.profile` and edit the arguments that you want.
+You will have to add the token in your `~/.env` and edit the arguments that you want.
+
+```bash
+# .env
+FOH_SERVER_AUTH="secure token"
+```
 
 I have the keybinds assigned in my KDE custom commands, it allows you to run anything you want with a keyboard shortcut. For non-KDE you'll have to find your own way.
 
