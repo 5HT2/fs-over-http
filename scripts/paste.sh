@@ -13,21 +13,24 @@ URL="https://i.l1v.in"
 CDN_URL="https://cdn.l1v.in" # This is a reverse proxy to $URL/media/
 APP_NAME="cdn.l1v.in"
 
-# Set default filename
+# Set default filename and path
 filename="$(date +"paste-%s.txt")"
+filepath="$HOME/.cache/$filename"
 
 printf 'Type your paste and press \u001b[31mCtrl D\u001b[0m when finished\n'
 
-content="$(cat -)"
+cat - > "$filepath"
 printf 'Uploading...\n'
 
-# Upload the paste
-RESPONSE=$(curl -s -X POST -H "Auth: $TOKEN" "$URL/public/media/$filename" -F "content=$content")
-FULL_URL="$CDN_URL/$(echo "$RESPONSE" | sed "s/^filesystem\/public\/media\///g")"
+# Upload the screenshot
+curl -s -X POST -H "Auth: $TOKEN" "$URL/public/media/$filename" -F "file=@$filepath"
 
-# Copy the paste URL to clipboard
-printf '%s' "$FULL_URL" | xclip -sel clip
-echo "Uploaded $FULL_URL"
+# Copy the screenshot URL to clipboard
+printf '%s/%s' "$CDN_URL" "$filename" | xclip -sel clip
+echo "Uploaded $CDN_URL/$filename"
 
 # Send notification after copying to clipboard
 notify-send "Uploaded paste" "$filename" --icon=clipboard --app-name="$APP_NAME"
+
+# Remove temporary file
+rm "$filepath"

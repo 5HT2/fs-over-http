@@ -77,4 +77,4 @@ docker pull l1ving/fs-over-http:latest
   - [X] Refactor docs about TLS
 - [ ] Encoding of uploading text-based files (eg the ● character)
 - [x] Cleanup README
-- [ ] Fix scripts to use new format
+- [x] Fix scripts to use new format

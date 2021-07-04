@@ -50,12 +50,9 @@ while [ ! -f "$filepath" ]; do
 done
 
 # Upload the screenshot
-RESPONSE=$(curl -s -X POST -H "Auth: $TOKEN" "$URL/public/i/$filename" -F "file=@$filepath")
+curl -i -X POST -H "Auth: $TOKEN" "$URL/public/i/$filename" -F "file=@$filepath"
 
 # Copy the screenshot URL to clipboard
-printf '%s/%s' \
-    "$PIC_URL" \
-    "$(echo "$RESPONSE" | sed "s/^filesystem\/public\/i\///g")" \
-    | xclip -sel clip
+printf '%s/%s' "$PIC_URL" "$filename" | xclip -sel clip
 
 notify-send "Saved screenshot" "$filename_date" --icon=spectacle --app-name="$APP_NAME"
