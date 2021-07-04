@@ -12,11 +12,10 @@ source "$HOME/.profile"
 TOKEN="$FOH_SERVER_AUTH"
 URL="https://i.l1v.in"
 PIC_URL="https://frogg.ie" # This is a reverse proxy to $URL/i/
-APP_NAME="i.l1v.in"
+APP_NAME="frogg.ie"
 
 # Set default filename and path
 filename="$(date +"%Y-%m-%d-%T.png")"
-filename_date="$filename"
 filepath="$HOME/pictures/screenshots/$filename"
 
 # Set the fancy url filename and filepath
@@ -55,4 +54,4 @@ curl -i -X POST -H "Auth: $TOKEN" "$URL/public/i/$filename" -F "file=@$filepath"
 # Copy the screenshot URL to clipboard
 printf '%s/%s' "$PIC_URL" "$filename" | xclip -sel clip
 
-notify-send "Saved screenshot" "$filename_date" --icon=spectacle --app-name="$APP_NAME"
+notify-send "Saved screenshot" "$filename" --icon=spectacle --app-name="$APP_NAME"
