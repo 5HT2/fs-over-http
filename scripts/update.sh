@@ -1,7 +1,7 @@
 #!/bin/bash
 
 docker pull l1ving/fs-over-http:latest
-CONTAINER_ID="$(docker ps | grep foh | head -n 1 | cut -c -12)"
+CONTAINER_ID="$(docker ps -f name=foh --format "{{.ID}}" | head -n 1)"
 
 echo "Stopping container $CONTAINER_ID"
 docker stop "$CONTAINER_ID"
