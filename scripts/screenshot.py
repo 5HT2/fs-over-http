@@ -46,11 +46,11 @@ def get_file_name():
 
 # Returns the status code for the current https://frogg.ie/`file_name` url
 def get_status_code():
-	return requests.get(BASE_URL + file_name).status_code
+  return requests.get(BASE_URL + file_name).status_code
 
 # If the second arg of the script is set, change S_FORMAT
 if len(sys.argv) > 1:
-	S_FORMAT = sys.argv[1]
+  S_FORMAT = sys.argv[1]
 
 file_name = get_file_name()
 status_code = get_status_code()
@@ -67,7 +67,7 @@ if status_code == 404:
 
   # Wait for spectacle to save the file 
   while os.path.isfile(FILEPATH) != True:
-  	time.sleep(0.2)
+    time.sleep(0.2)
 
   # Upload file
   files = {'file': open(FILEPATH, 'rb')}
