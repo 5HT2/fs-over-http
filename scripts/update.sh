@@ -1,11 +1,9 @@
 #!/bin/bash
 
 docker pull l1ving/fs-over-http:latest
-CONTAINER_ID="$(docker ps -f name=foh --format "{{.ID}}" | head -n 1)"
 
-echo "Stopping container $CONTAINER_ID"
-docker stop "$CONTAINER_ID"
-docker rm "$CONTAINER_ID"
+docker stop foh
+docker rm foh
 
 docker run --name foh \
   -e MAXBODYSIZE="1048576000" \
