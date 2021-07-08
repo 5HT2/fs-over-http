@@ -8,8 +8,8 @@ fi
 
 docker pull l1ving/fs-over-http:latest
 
-docker stop foh
-docker rm foh
+docker stop foh || echo "Could not stop missing container foh"
+docker rm foh || echo "Could not remove missing container foh"
 
 docker run --name foh \
   -e MAXBODYSIZE="1048576000" \
