@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "$HOME/.profile"
+source "$HOME/.env"
 if [[ -z "$FOH_PATH" ]]; then
   echo "FOH_PATH not set!"
   exit 1

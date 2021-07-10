@@ -6,9 +6,8 @@
 # cat tmp.log | paste
 
 # shellcheck disable=SC1091
-source "$HOME/.profile"
+source "$HOME/.env"
 
-TOKEN="$FOH_SERVER_AUTH"
 URL="https://i.l1v.in"
 CDN_URL="https://cdn.l1v.in" # This is a reverse proxy to $URL/media/
 APP_NAME="cdn.l1v.in"
@@ -23,7 +22,7 @@ cat - > "$filepath"
 printf 'Uploading...\n'
 
 # Upload the screenshot
-curl -s -X POST -H "Auth: $TOKEN" "$URL/public/media/$filename" -F "file=@$filepath"
+curl -s -X POST -H "Auth: $FOH_SERVER_AUTH" "$URL/public/media/$filename" -F "file=@$filepath"
 
 # Copy the screenshot URL to clipboard
 printf '%s/%s' "$CDN_URL" "$filename" | xclip -sel clip
