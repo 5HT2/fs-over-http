@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
 source "$HOME/.env"
 if [[ -z "$FOH_PATH" ]]; then
   echo "FOH_PATH not set!"
