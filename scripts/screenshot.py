@@ -52,6 +52,15 @@ def get_status_code():
 if len(sys.argv) > 1:
   S_FORMAT = sys.argv[1]
 
+# Take screenshot with spectacle
+bashCmd = "spectacle " + S_FORMAT + " -p -b -n -o=" + FILEPATH + " >/dev/null 2>&1"
+handle_bash_cmd(bashCmd.split())
+
+# Wait for spectacle to save the file
+while os.path.isfile(FILEPATH) != True:
+  time.sleep(0.2)
+
+# Get initial filename and status
 file_name = get_file_name()
 status_code = get_status_code()
 
@@ -62,13 +71,6 @@ while status_code == 200:
 
 # Be sure it's a 404 Not Found
 if status_code == 404:
-  bashCmd = "spectacle " + S_FORMAT + " -p -b -n -o=" + FILEPATH + " >/dev/null 2>&1"
-  handle_bash_cmd(bashCmd.split())
-
-  # Wait for spectacle to save the file 
-  while os.path.isfile(FILEPATH) != True:
-    time.sleep(0.2)
-
   # Upload file
   files = {'file': open(FILEPATH, 'rb')}
   response = requests.post(FOLDER_P + file_name, files=files, headers={'Auth': os.environ.get("FOH_SERVER_AUTH")})
