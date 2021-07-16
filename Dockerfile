@@ -1,7 +1,7 @@
 FROM golang:1.16.5
 
-RUN mkdir /fs-over-http
-RUN mkdir /foh-files
+RUN mkdir /fs-over-http \
+ && mkdir /foh-files
 ADD . /fs-over-http
 WORKDIR /fs-over-http
 
