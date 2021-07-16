@@ -28,7 +28,7 @@ def handle_bash_cmd(command):
   process = subprocess.Popen(command, stdout=subprocess.PIPE)
   output, error = process.communicate()
   
-  if error != None:
+  if error is not None:
     handle_notification("Error Saving", error, "state-error")
     exit(1)
 
@@ -57,7 +57,7 @@ bashCmd = "spectacle " + S_FORMAT + " -p -b -n -o=" + FILEPATH + " >/dev/null 2>
 handle_bash_cmd(bashCmd.split())
 
 # Wait for spectacle to save the file
-while os.path.isfile(FILEPATH) != True:
+while os.path.isfile(FILEPATH) is False:
   time.sleep(0.2)
 
 # Get initial filename and status
