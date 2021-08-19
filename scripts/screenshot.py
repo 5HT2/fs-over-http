@@ -37,12 +37,11 @@ def handle_notification(title, description, icon):
   bashCmd = "notify-send|" + title + "|" + description + "|--icon=" + icon + "|--app-name=" + CDN_NAME
   handle_bash_cmd(bashCmd.split("|"))
 
-# Generates a random 3 long + .png filename
+# Generates a random 3 long filename
 def get_file_name():
   # Choose from "A-z0-9"
   letters = string.ascii_letters + string.digits
-  result_str = ''.join(random.choice(letters) for i in range(3))
-  return result_str + ".png"
+  return ''.join(random.choice(letters) for i in range(3))
 
 # Returns the status code for the current https://frogg.ie/`file_name` url
 def get_status_code():
