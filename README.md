@@ -29,7 +29,6 @@ echo "$AUTH" > token
 
 # Change the port to whatever you'd like. 
 # Change localhost to your public IP if you'd like.
-# Compression is optional, but enabled if not explicitly set.
 ./fs-over-http -addr=localhost:6060
 ```
 
@@ -37,6 +36,17 @@ echo "$AUTH" > token
 
 Please see [`USAGE.md`](https://github.com/l1ving/fs-over-http/blob/master/USAGE.md) for examples of interacting with
 a fs-over-http server.
+
+### IPv6
+
+IPv6 is supported, do note that you need to format the `addr` flag differently.
+
+```bash
+# Example IPv4
+./fs-over-http -addr "10.0.1.1:6060"
+# Example IPv6
+./fs-over-http -addr "[2fb1:e540:13a7:3fa1:37bc:80b4:0b96:dbb8]:6060"
+```
 
 #### Production
 

@@ -8,17 +8,16 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"sort"
 	"strings"
+	"time"
 )
 
 var (
 	addr         = flag.String("addr", "localhost:6060", "TCP address to listen to")
 	compress     = flag.Bool("compress", true, "Whether to enable transparent response compression")
-	useTls       = flag.Bool("tls", false, "Whether to enable TLS")
-	tlsCert      = flag.String("cert", "", "Full certificate file path")
-	tlsKey       = flag.String("key", "", "Full key file path")
 	maxBodySize  = flag.Int("maxbodysize", 100*1024*1024, "MaxRequestBodySize, defaults to 100MiB")
 	authToken    = []byte(ReadFileUnsafe("token", true))
 	fsFolder     = "filesystem/"
@@ -29,45 +28,72 @@ var (
 
 func main() {
 	flag.Parse()
-
-	protocol := "http"
-	if *useTls {
-		protocol += "s"
-	}
-
-	log.Printf("- Running fs-over-http on " + protocol + "://" + *addr)
+	//goland:noinspection ALL
+	log.Printf("- Running fs-over-http on http://" + *addr)
 
 	// If fsFolder or publicFolder don't exist
 	SafeMkdir(fsFolder)
 	SafeMkdir(publicFolder)
-
-	h := RequestHandler
-	if *compress {
-		h = fasthttp.CompressHandler(h)
-	}
 
 	// TODO: Switch over to using something similar to https://github.com/alessiosavi/GoDiffBinary/blob/7a8d35a20e38b14268b9840a4f9631f537a4dfea/api/api.go#L15
 	// Instead of the manual RequestHandler that we have going
 
 	// The gzipHandler will serve a compress request only if the client request it with headers (Content-Type: gzip, deflate)
 	// Compress data before sending (if requested by the client)
-	gzipHandler := fasthttp.CompressHandlerLevel(h, fasthttp.CompressBestCompression)
-
+	h := fasthttp.CompressHandlerLevel(RequestHandler, fasthttp.CompressBestCompression)
 	s := &fasthttp.Server{
-		Handler:            gzipHandler,
+		Handler:            h,
 		Name:               "fs-over-http",
 		MaxRequestBodySize: *maxBodySize,
 	}
 
-	if *useTls && len(*tlsCert) > 0 && len(*tlsKey) > 0 {
-		if err := s.ListenAndServeTLS(*addr, *tlsCert, *tlsKey); err != nil {
-			log.Fatalf("- Error in ListenAndServeTLS: %s", err)
+	// Custom listenAndServe function in order to change `network` from `tcp4` to `tcp` (in order to allow tcp6)
+	listenAndServe := func(addr string) error {
+		ln, err := net.Listen("tcp", addr)
+		if err != nil {
+			return err
 		}
-	} else {
-		if err := s.ListenAndServe(*addr); err != nil {
-			log.Fatalf("- Error in ListenAndServe: %s", err)
+		if tcpListener, ok := ln.(*net.TCPListener); ok {
+			return s.Serve(tcpKeepaliveListener{
+				TCPListener:     tcpListener,
+				keepalive:       s.TCPKeepalive,
+				keepalivePeriod: s.TCPKeepalivePeriod,
+			})
+		}
+		return s.Serve(ln)
+	}
+
+	if err := listenAndServe(*addr); err != nil {
+		log.Fatalf("- Error in ListenAndServe: %s", err)
+	}
+}
+
+// tcpKeepAliveListener sets TCP keep-alive timeouts on accepted
+// connections. It's used by ListenAndServe, ListenAndServeTLS and
+// ListenAndServeTLSEmbed so dead TCP connections (e.g. closing laptop mid-download)
+// eventually go away.
+type tcpKeepaliveListener struct {
+	*net.TCPListener
+	keepalive       bool
+	keepalivePeriod time.Duration
+}
+
+func (ln tcpKeepaliveListener) Accept() (net.Conn, error) {
+	tc, err := ln.AcceptTCP()
+	if err != nil {
+		return nil, err
+	}
+	if err := tc.SetKeepAlive(ln.keepalive); err != nil {
+		tc.Close() //nolint:errcheck
+		return nil, err
+	}
+	if ln.keepalivePeriod > 0 {
+		if err := tc.SetKeepAlivePeriod(ln.keepalivePeriod); err != nil {
+			tc.Close() //nolint:errcheck
+			return nil, err
 		}
 	}
+	return tc, nil
 }
 
 func RequestHandler(ctx *fasthttp.RequestCtx) {
