@@ -1,8 +1,8 @@
 # [fs-over-http](https://i.l1v.in)
 [![time tracker](https://wakatime.com/badge/github/l1ving/fs-over-http.svg)](https://wakatime.com/badge/github/l1ving/fs-over-http)
 [![Docker Pulls](https://img.shields.io/docker/pulls/l1ving/fs-over-http?logo=docker&logoColor=white)](https://hub.docker.com/r/l1ving/fs-over-http)
-[![Docker Build](https://img.shields.io/github/workflow/status/l1ving/fs-over-http/docker-build?logo=docker&logoColor=white)](https://github.com/l1ving/fs-over-http/actions/workflows/docker-build.yml)
-[![CodeFactor](https://img.shields.io/codefactor/grade/github/l1ving/fs-over-http?logo=codefactor&logoColor=white)](https://www.codefactor.io/repository/github/l1ving/fs-over-http)
+[![Docker Build](https://img.shields.io/github/workflow/status/5HT2/fs-over-http/docker-build?logo=docker&logoColor=white)](https://github.com/5HT2/fs-over-http/actions/workflows/docker-build.yml)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/5HT2/fs-over-http?logo=codefactor&logoColor=white)](https://www.codefactor.io/repository/github/5HT2/fs-over-http)
 
 A filesystem interface over http.
 
@@ -16,14 +16,14 @@ Contributions to fix my code are welcome, as well as any improvements.
 
 To build:
 ```bash
-git clone git@github.com:l1ving/fs-over-http.git
+git clone git@github.com:5HT2/fs-over-http.git
 cd fs-over-http
 make
 ```
 
 To run:
 ```bash
-# I recommend using genpasswd https://gist.github.com/l1ving/30f98284e9f92e1b47b4df6e05a063fc
+# I recommend using genpasswd https://gist.github.com/5HT2/30f98284e9f92e1b47b4df6e05a063fc
 AUTH='some secure token'
 echo "$AUTH" > token
 
@@ -34,7 +34,7 @@ echo "$AUTH" > token
 
 ## Usage
 
-Please see [`USAGE.md`](https://github.com/l1ving/fs-over-http/blob/master/USAGE.md) for examples of interacting with
+Please see [`USAGE.md`](https://github.com/5HT2/fs-over-http/blob/master/USAGE.md) for examples of interacting with
 a fs-over-http server.
 
 ### IPv6
@@ -60,7 +60,7 @@ i.l1v.in {
 ```
 
 There is also a docker image available with the following command, or checkout the 
-[`update.sh`](https://github.com/l1ving/fs-over-http/blob/master/scripts/update.sh) script for automatically
+[`update.sh`](https://github.com/5HT2/fs-over-http/blob/master/scripts/update.sh) script for automatically
 updating a live docker image.
 ```bash
 docker pull l1ving/fs-over-http:latest

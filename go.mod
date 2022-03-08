@@ -1,4 +1,4 @@
-module github.com/l1ving/fs-over-http
+module github.com/5HT2/fs-over-http
 
 go 1.15
 
