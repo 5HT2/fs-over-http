@@ -25,6 +25,12 @@ If the path is a folder it will end with `/`, otherwise it will not end in a `/`
 
 The only time you will get an error message as output instead of GET contents is on a non-200 response.
 
+### Modifying files
+
+When using any of the following examples, they will write to the filesystem folder. If you want to write to the public folder, you need to append `/public` to your domain, eg `localhost:6060/public/myfile.txt`.
+
+This only applies when you are using a token to access FOH. `/public` is automatically added when not accessing FOH with a token.
+
 #### Read a file or directory
 
 ```bash
