@@ -2,7 +2,7 @@ module github.com/5HT2/fs-over-http
 
 go 1.17
 
-require github.com/valyala/fasthttp v1.34.0
+require github.com/valyala/fasthttp v1.35.0
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
