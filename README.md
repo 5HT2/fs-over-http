@@ -85,6 +85,6 @@ docker pull l1ving/fs-over-http:latest
 - [X] Add Caddyfile example
   - [ ] Maybe with rate limit options and the such
   - [X] Refactor docs about TLS
-- [ ] Encoding of uploading text-based files (eg the ● character)
+- [x] Encoding of uploading text-based files (eg the ● character)
 - [x] Cleanup README
 - [x] Fix scripts to use new format
