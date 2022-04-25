@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -29,13 +28,13 @@ func ReadFileUnsafe(file string, removeNewline bool) string {
 }
 
 func ReadFile(file string) (string, error) {
-	dat, err := ioutil.ReadFile(file)
+	dat, err := os.ReadFile(file)
 	return string(dat), err
 }
 
 func WriteToFile(file string, content string) error {
 	data := []byte(content)
-	err := ioutil.WriteFile(file, data, 0600)
+	err := os.WriteFile(file, data, 0600)
 
 	if err != nil {
 		log.Printf("- Failed to read '%s'", file)
