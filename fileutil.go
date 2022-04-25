@@ -63,7 +63,7 @@ func GetFileContentTypeExt(out *os.File, file string) (string, error) {
 
 	switch ext {
 	case ".txt", ".text":
-		return "text/plain", nil
+		return "text/plain; charset=utf-8", nil
 	case ".htm", ".html":
 		return "text/html", nil
 	case ".css":
@@ -73,7 +73,7 @@ func GetFileContentTypeExt(out *os.File, file string) (string, error) {
 	case ".mov":
 		return "video/quicktime", nil
 	case ".json":
-		return "application/json", nil
+		return "application/json; charset=utf-8", nil
 	}
 
 	return GetFileContentType(out)
