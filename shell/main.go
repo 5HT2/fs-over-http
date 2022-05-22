@@ -12,7 +12,11 @@ func main() {
 
 	tcgetattr(os.Stdin.Fd(), &orig_tios);
 
-	nbuf_tios = orig_tios;
+	nbuf_tios          =  orig_tios;
+
+	nbuf_tios.c_lflag &= ^ICANON;
+
+	println(nbuf_tios.c_lflag);
 
 	tcsetattr(os.Stdin.Fd(), TCSANOW, &nbuf_tios);
 
@@ -23,10 +27,8 @@ func main() {
 			var bt, err = stdin.ReadByte()
 
 			if (err == nil) {
-				fmt.Printf("%c", bt);
+				fmt.Printf("%i", bt);
 			}
-
-			break;
 		}
 
 		break;
