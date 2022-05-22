@@ -1,3 +1,4 @@
+// im so sorry
 package main;
 
 import "strings";
@@ -59,7 +60,7 @@ func main() {
 					var largv []string = strings.Split(cmd, " ");
 
 					if (len(largv) == 1) {
-						var fillin, compl = do_completions(cmd, []string{"exit", "connect"});
+						var fillin, compl = do_completions(cmd, []string{"exit", "connect", "ls", "cat", "get"});
 						if (fillin) {
 							largv[0] = compl;
 							cmd = strings.Join(largv, " ");
@@ -153,17 +154,124 @@ func main() {
 											}
 											
 											fmt.Printf("\n");
-											goto cmddone;
 										} else {
-											fmt.Printf("ERROR XXX not a directory\n");
-											goto cmddone;
+											fmt.Printf("XXX not a directory\n");
 										}
+									} else if (res.StatusCode() == 404) {
+										fmt.Printf("\n404 NOT FOUND\n");
+									}
+ 								} else {
+									fmt.Printf("\nXXX not connected\n");
+								}
+							} else {
+								fmt.Printf("\nXXX path not specified\n")
+							}
+
+							goto cmddone; 
+						} else if (largv[0] == "cat") {
+							if (connected) {
+								if (len(largv) > 1) {
+									var req fasthttp.Request;
+									var res fasthttp.Response;
+
+									req.SetRequestURI(server + largv[1]);
+
+									err := fasthttp.Do(&req, &res);
+
+									if (err != nil) {
+										fmt.Printf("\nERROR %d %s\n", res.StatusCode(), err.Error());
+										goto cmddone;
+									}
+
+									var data []byte = res.Body();
+
+									if (string(res.Header.ContentType()) != "application/x-directory") {
+										if (res.StatusCode() == 200) {
+											fmt.Printf("\n200 OK\n%s\n", string(data));
+										} else if (res.StatusCode() == 204) {
+											fmt.Printf("\n204 NO CONTENT\n");
+										} else if (res.StatusCode() == 404) {
+											fmt.Printf("\n404 NOT FOUND\n");
+										}
+									} else {
+										fmt.Printf("\nXXX is a directory\n");
 									}
 								} else {
-									fmt.Printf("\nERROR XXX not connected\n");
-									goto cmddone;
+									fmt.Printf("\nXXX path not specified\n")
 								}
+							} else {
+								fmt.Printf("\nXXX not connected\n");
 							}
+
+							goto cmddone;
+						} else if (largv[0] == "dog") {
+							fmt.Printf("\nwoof!\n");
+							
+							goto cmddone;
+						} else if (largv[0] == "get") {
+							if (connected) {
+								if (len(largv) > 1) {
+									if (len(largv) > 2) {
+										var req fasthttp.Request;
+										var res fasthttp.Response;
+
+										req.SetRequestURI(server + largv[1]);
+
+										err = fasthttp.Do(&req, &res);
+
+										if (err != nil) {
+											fmt.Printf("\nERROR %d %s\n", res.StatusCode(), err.Error());
+											goto cmddone;
+										}
+
+										var data []byte = res.Body();
+
+										if (string(res.Header.ContentType()) != "application/x-directory") {
+											if (res.StatusCode() == 200) {
+												fmt.Printf("\n200 OK\n");
+
+												fd, err := os.OpenFile(largv[2], os.O_WRONLY | os.O_CREATE | os.O_EXCL, 0600);
+
+												if (err != nil) {
+													fmt.Printf("\nXXX %s\n", err.Error());
+													goto cmddone;
+												}
+
+												_, err = fd.Write(data)
+
+												if (err != nil) {
+													fmt.Printf("\nXXX %s\n", err.Error());
+												}
+
+												fd.Close();
+											} else if (res.StatusCode() == 204) {
+												fmt.Printf("\n204 NO CONTENT\n");
+
+												fd, err := os.OpenFile(largv[2], os.O_WRONLY | os.O_CREATE | os.O_EXCL, 0600);
+
+												if (err != nil) {
+													fmt.Printf("\nXXX %s\n", err.Error());
+													goto cmddone;
+												}
+
+												fd.Close();
+											} else if (res.StatusCode() == 404) {
+												fmt.Printf("\n404 NOT FOUND\n");
+											}
+										} else {
+											fmt.Printf("\nXXX is a directory\n");
+										}
+									} else {
+										fmt.Printf("\nXXX local path not specified\n");
+									}
+								} else {
+									fmt.Printf("\nXXX remote path not specified\n");
+								}
+							} else {
+								fmt.Printf("\nXXX not connected\n");
+							}
+
+							goto cmddone;
 						}
 					}
 

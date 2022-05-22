@@ -16,11 +16,11 @@ const ISIG      tcflag_t = C.ISIG;
 const ICANON    tcflag_t = C.ICANON;
 const ECHO      tcflag_t = C.ECHO;
 
-const TCSANOW   int = 0;
-const TCSADRAIN int = 1;
-const TCSAFLUSH int = 2;
+const TCSANOW   int = C.TCSANOW;
+const TCSADRAIN int = C.TCSADRAIN;
+const TCSAFLUSH int = C.TCSAFLUSH;
 
-const NCCS byte = 32;
+const NCCS byte = C.NCCS;
 
 type termios struct {
 	c_iflag    tcflag_t; /* input modes */
