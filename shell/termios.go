@@ -12,7 +12,9 @@ const SYS_IOCTL uintptr = 53;
 type tcflag_t uint32;
 type cc_t     byte;
 
+const ISIG      tcflag_t = C.ISIG;
 const ICANON    tcflag_t = C.ICANON;
+const ECHO      tcflag_t = C.ECHO;
 
 const TCSANOW   int = 0;
 const TCSADRAIN int = 1;
