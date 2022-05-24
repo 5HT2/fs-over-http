@@ -33,6 +33,27 @@ func do_completions(cmd string, cmps []string) (bool, string) {
 	return false, "";
 }
 
+func pstatus(status int) (bool) {
+	switch (status) {
+		case 200:		
+			fmt.Printf("\n200 OK\n");
+			return false;
+		case 204:
+			fmt.Printf("\n204 NO CONTENT\n");
+			return false;	
+		case 403:
+			fmt.Printf("\n403 FORBIDDEN\n");
+		case 404:
+			fmt.Printf("\n404 NOT FOUND\n");
+		case 500:
+			fmt.Printf("\n500 INTERNAL SERVER ERROR\n")
+		default:
+			fmt.Printf("\n%3d UNKNOWN\n", status);
+	}
+
+	return true;
+}
+
 func main() {
 	var stdin *bufio.Reader = bufio.NewReader(os.Stdin);
 
@@ -51,6 +72,7 @@ func main() {
 
 	var token     string;
 	var htoken    bool   = false;
+	
 	for (true) { 
 		fmt.Printf("fs-over-http $ ");
 
@@ -107,8 +129,7 @@ func main() {
 									goto cmddone;
 								}
 
-								if (res.StatusCode() == 403) {
-									fmt.Printf("\n403 FORBIDDEN\n");
+								if (pstatus(res.StatusCode())) {
 									goto cmddone;
 								}
 
@@ -142,8 +163,9 @@ func main() {
 										goto cmddone;
 									}
 
-									if (res.StatusCode() == 200) {
-										fmt.Printf("\n200 OK\n");
+									if (pstatus(res.StatusCode())) {
+										goto cmddone;
+									} else if (res.StatusCode() == 200) {
 										if (string(res.Header.ContentType()) == "application/x-directory") {
 											var data []byte = res.Body();
 
@@ -185,8 +207,6 @@ func main() {
 										} else {
 											fmt.Printf("XXX not a directory\n");
 										}
-									} else if (res.StatusCode() == 404) {
-										fmt.Printf("\n404 NOT FOUND\n");
 									}
  								} else {
 									fmt.Printf("\nXXX not connected\n");
@@ -217,12 +237,10 @@ func main() {
 									var data []byte = res.Body();
 
 									if (string(res.Header.ContentType()) != "application/x-directory") {
-										if (res.StatusCode() == 200) {
-											fmt.Printf("\n200 OK\n%s\n", string(data));
-										} else if (res.StatusCode() == 204) {
-											fmt.Printf("\n204 NO CONTENT\n");
-										} else if (res.StatusCode() == 404) {
-											fmt.Printf("\n404 NOT FOUND\n");
+										if (pstatus(res.StatusCode())) {
+											goto cmddone;
+										} else if (res.StatusCode() == 200) {
+											fmt.Printf("%s\n", string(data));
 										}
 									} else {
 										fmt.Printf("\nXXX is a directory\n");
@@ -261,9 +279,9 @@ func main() {
 										var data []byte = res.Body();
 
 										if (string(res.Header.ContentType()) != "application/x-directory") {
-											if (res.StatusCode() == 200) {
-												fmt.Printf("\n200 OK\n");
-
+											if (pstatus(res.StatusCode())) {
+												goto cmddone;
+											} else if (res.StatusCode() == 200) {
 												fd, err := os.OpenFile(largv[2], os.O_WRONLY | os.O_CREATE | os.O_EXCL, 0600);
 
 												if (err != nil) {
@@ -279,8 +297,6 @@ func main() {
 
 												fd.Close();
 											} else if (res.StatusCode() == 204) {
-												fmt.Printf("\n204 NO CONTENT\n");
-
 												fd, err := os.OpenFile(largv[2], os.O_WRONLY | os.O_CREATE | os.O_EXCL, 0600);
 
 												if (err != nil) {
@@ -289,8 +305,6 @@ func main() {
 												}
 
 												fd.Close();
-											} else if (res.StatusCode() == 404) {
-												fmt.Printf("\n404 NOT FOUND\n");
 											}
 										} else {
 											fmt.Printf("\nXXX is a directory\n");
@@ -356,11 +370,7 @@ func main() {
 											goto cmddone;
 										}
 
-										if (res.StatusCode() == 200) {
-											fmt.Printf("\n200 OK\n");
-										} else if (res.StatusCode() == 404) {
-											fmt.Printf("\n404 NOT FOUND\n");
-										}
+										pstatus(res.StatusCode());
 									} else {
 										fmt.Printf("\nXXX remote path not specified\n");
 									}
@@ -410,11 +420,7 @@ func main() {
 										goto cmddone;
 									}
 
-									if (res.StatusCode() == 200) {
-										fmt.Printf("\n200 OK\n");
-									} else if (res.StatusCode() == 404) {
-										fmt.Printf("\n404 NOT FOUND\n");
-									}
+									pstatus(res.StatusCode());
 								} else {
 									fmt.Printf("\nXXX remote path not specified\n");
 								}
@@ -442,11 +448,7 @@ func main() {
 										goto cmddone;
 									}
 
-									if (res.StatusCode() == 200) {
-										fmt.Printf("\n200 OK\n");
-									} else if (res.StatusCode() == 404) {
-										fmt.Printf("\n404 NOT FOUND\n");
-									}
+									pstatus(res.StatusCode());
 								} else {
 									fmt.Printf("\nXXX remote path not specified\n");
 								}
