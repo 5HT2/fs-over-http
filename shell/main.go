@@ -7,6 +7,9 @@ import "fmt";
 import "os";
 import "github.com/valyala/fasthttp";
 import "unicode/utf8";
+import "mime/multipart";
+import "bytes";
+import "io";
 
 func do_completions(cmd string, cmps []string) (bool, string) {
 	var filt []string;
@@ -45,6 +48,9 @@ func main() {
 
 	var server    string;
 	var connected bool   = false;
+
+	var token     string;
+	var htoken    bool   = false;
 	for (true) { 
 		fmt.Printf("fs-over-http $ ");
 
@@ -60,7 +66,7 @@ func main() {
 					var largv []string = strings.Split(cmd, " ");
 
 					if (len(largv) == 1) {
-						var fillin, compl = do_completions(cmd, []string{"exit", "connect", "ls", "cat", "get"});
+						var fillin, compl = do_completions(cmd, []string{"exit", "connect", "ls", "cat", "get", "put"});
 						if (fillin) {
 							largv[0] = compl;
 							cmd = strings.Join(largv, " ");
@@ -85,11 +91,30 @@ func main() {
 									largv[1] = largv[1] + ":6060";
 								}
 
-								status, _, err := fasthttp.Get([]byte{}, largv[1]);
+								var req fasthttp.Request;
+								var res fasthttp.Response;
 
-								if (err != nil || status != 200) {
-									fmt.Printf("\nERROR %d %s\n", status, err.Error());
+								req.SetRequestURI(largv[1]);
+								
+								if (len(largv) > 2) {
+									req.Header.Set("Auth", largv[2]);
+								}
+
+								err := fasthttp.Do(&req, &res);
+
+								if (err != nil) {
+									fmt.Printf("\nXXX %s\n", err.Error());
 									goto cmddone;
+								}
+
+								if (res.StatusCode() == 403) {
+									fmt.Printf("\n403 FORBIDDEN\n");
+									goto cmddone;
+								}
+
+								if (len(largv) > 2) {
+									htoken = true;
+									token  = largv[2];
 								}
 
 								server    = largv[1] + "/";
@@ -106,11 +131,14 @@ func main() {
 									var res fasthttp.Response;
 
 									req.SetRequestURI(server + largv[1]);
+									if (htoken) {
+										req.Header.Set("Auth", token);
+									}
 
 									err := fasthttp.Do(&req, &res);
 
 									if (err != nil) {
-										fmt.Printf("\nERROR %d %s\n", res.StatusCode(), err.Error());
+										fmt.Printf("\nXXX %s\n", err.Error());
 										goto cmddone;
 									}
 
@@ -175,11 +203,14 @@ func main() {
 									var res fasthttp.Response;
 
 									req.SetRequestURI(server + largv[1]);
+									if (htoken) {
+										req.Header.Set("Auth", token);
+									}
 
 									err := fasthttp.Do(&req, &res);
 
 									if (err != nil) {
-										fmt.Printf("\nERROR %d %s\n", res.StatusCode(), err.Error());
+										fmt.Printf("\nXXX %s\n", err.Error());
 										goto cmddone;
 									}
 
@@ -216,11 +247,14 @@ func main() {
 										var res fasthttp.Response;
 
 										req.SetRequestURI(server + largv[1]);
+										if (htoken) {
+											req.Header.Set("Auth", token);
+										}
 
 										err = fasthttp.Do(&req, &res);
 
 										if (err != nil) {
-											fmt.Printf("\nERROR %d %s\n", res.StatusCode(), err.Error());
+											fmt.Printf("\nXXX %s\n", err.Error());
 											goto cmddone;
 										}
 
@@ -266,6 +300,72 @@ func main() {
 									}
 								} else {
 									fmt.Printf("\nXXX remote path not specified\n");
+								}
+							} else {
+								fmt.Printf("\nXXX not connected\n");
+							}
+
+							goto cmddone;
+						} else if (largv[0] == "put") {
+							if (connected) {
+								if (len(largv) > 1) {
+									if (len(largv) > 2) {
+										fd, err := os.OpenFile(largv[1], os.O_RDONLY, 0);
+
+										if (err != nil) {
+											fmt.Printf("\nXXX %s\n", err.Error());
+											fd.Close();
+											goto cmddone;
+										}
+
+										var fbuf    bytes.Buffer;
+										var writer *multipart.Writer = multipart.NewWriter(&fbuf);
+
+										fwriter, err := writer.CreateFormFile("file", fd.Name());										
+										if (err != nil) {
+											fmt.Printf("\nXXX %s\n", err.Error());
+											fd.Close();
+											goto cmddone;
+										}
+
+										_, err = io.Copy(fwriter, fd);
+										if (err != nil) {
+											fmt.Printf("\nXXX %s\n", err.Error());
+											fd.Close();
+											goto cmddone;
+										}
+
+										fd.Close();
+										writer.Close();
+
+										var req fasthttp.Request;
+										var res fasthttp.Response;
+
+										req.SetRequestURI(server + largv[2]);
+										req.Header.SetMethod("POST");
+										req.Header.SetContentType(writer.FormDataContentType());
+										req.SetBody(fbuf.Bytes());
+										if (htoken) {
+											req.Header.Set("Auth", token);
+										}
+
+										err = fasthttp.Do(&req, &res);
+
+										if (err != nil) {
+											fmt.Printf("\nXXX %s\n", err.Error());
+											goto cmddone;
+										}
+
+										if (res.StatusCode() == 200) {
+											fmt.Printf("\n200 OK\n");
+										} else {
+											fmt.Printf("\n404 NOT FOUND\n");
+										}
+									} else {
+										fmt.Printf("\nXXX remote path not specified\n");
+									}
+								} else {
+									fmt.Printf("\nXXX local path not specified\n")
 								}
 							} else {
 								fmt.Printf("\nXXX not connected\n");
