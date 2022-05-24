@@ -66,7 +66,7 @@ func main() {
 					var largv []string = strings.Split(cmd, " ");
 
 					if (len(largv) == 1) {
-						var fillin, compl = do_completions(cmd, []string{"exit", "connect", "ls", "cat", "get", "put"});
+						var fillin, compl = do_completions(cmd, []string{"exit", "connect", "ls", "cat", "get", "put", "mkdir", "rm"});
 						if (fillin) {
 							largv[0] = compl;
 							cmd = strings.Join(largv, " ");
@@ -358,7 +358,7 @@ func main() {
 
 										if (res.StatusCode() == 200) {
 											fmt.Printf("\n200 OK\n");
-										} else {
+										} else if (res.StatusCode() == 404) {
 											fmt.Printf("\n404 NOT FOUND\n");
 										}
 									} else {
@@ -366,6 +366,89 @@ func main() {
 									}
 								} else {
 									fmt.Printf("\nXXX local path not specified\n")
+								}
+							} else {
+								fmt.Printf("\nXXX not connected\n");
+							}
+
+							goto cmddone;
+						} else if (largv[0] == "mkdir") {
+							if (connected) {
+								if (len(largv) > 1) {
+									var fbuf    bytes.Buffer;
+									var writer *multipart.Writer = multipart.NewWriter(&fbuf);
+
+									fwriter, err := writer.CreateFormField("dir");
+									if (err != nil) {
+										fmt.Printf("\nXXX %s\n", err.Error());
+										goto cmddone;
+									}
+
+									_, err = io.WriteString(fwriter, largv[1]);
+									if (err != nil) {
+										fmt.Printf("\nXXX %s\n", err.Error());
+										goto cmddone;
+									}
+
+									writer.Close();
+
+									var req fasthttp.Request;
+									var res fasthttp.Response;
+
+									req.SetRequestURI(server + largv[1]);
+									req.Header.SetMethod("POST");
+									req.Header.SetContentType(writer.FormDataContentType());
+									req.SetBody(fbuf.Bytes());
+									if (htoken) {
+										req.Header.Set("Auth", token);
+									}
+
+									err = fasthttp.Do(&req, &res);
+
+									if (err != nil) {
+										fmt.Printf("\nXXX %s\n", err.Error());
+										goto cmddone;
+									}
+
+									if (res.StatusCode() == 200) {
+										fmt.Printf("\n200 OK\n");
+									} else if (res.StatusCode() == 404) {
+										fmt.Printf("\n404 NOT FOUND\n");
+									}
+								} else {
+									fmt.Printf("\nXXX remote path not specified\n");
+								}
+							} else {
+								fmt.Printf("\nXXX not connected\n");
+							}
+
+							goto cmddone;
+						} else if (largv[0] == "rm") {
+							if (connected) {
+								if (len(largv) > 1) {
+									var req fasthttp.Request;
+									var res fasthttp.Response;
+
+									req.SetRequestURI(server + largv[1]);
+									req.Header.SetMethod("DELETE");
+									if (htoken) {
+										req.Header.Set("Auth", token);
+									}
+
+									err = fasthttp.Do(&req, &res);
+
+									if (err != nil) {
+										fmt.Printf("\nXXX %s\n", err.Error());
+										goto cmddone;
+									}
+
+									if (res.StatusCode() == 200) {
+										fmt.Printf("\n200 OK\n");
+									} else if (res.StatusCode() == 404) {
+										fmt.Printf("\n404 NOT FOUND\n");
+									}
+								} else {
+									fmt.Printf("\nXXX remote path not specified\n");
 								}
 							} else {
 								fmt.Printf("\nXXX not connected\n");
