@@ -1,5 +1,6 @@
 token
 .idea/
+.vscode/
 filesystem/
 fs-over-http
 private_folders
