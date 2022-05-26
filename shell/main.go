@@ -54,6 +54,95 @@ func pstatus(status int) (bool) {
 	return true;
 }
 
+func test_runes(data []byte, str string, off int) (bool) {
+	var pos1 int = off;
+	var pos2 int = 0;
+
+	for (pos2 < len(str)) {
+		r1, s := utf8.DecodeRuneInString(str[pos2:]);
+		r2, _ := utf8.DecodeRune(data[pos1:]);
+
+		if (r1 != r2) {
+			return false;
+		}
+
+		pos1 += s;
+		pos2 += s;
+	}
+
+	return true;
+}
+
+func parse_directory(data []byte) (string, []string, bool) {
+	var valid bool = false;
+	var pos   int  = 0;
+	
+	var name       string = "";
+	var contents []string;
+
+	for pos < len(data) {
+		r, s := utf8.DecodeRune(data[pos:]);
+
+		name += string(r);
+		pos  += s;
+
+		if (test_runes(data, "/\n", pos)) {
+			pos += len("/\n");
+			valid = true;
+			break;
+		}
+	}
+
+	if (!valid) {
+		return "", nil, false;
+	}
+
+	for pos < len(data) {
+		r, s := utf8.DecodeRune(data[pos:]);
+		pos += s;
+
+		if (r == '├' || r == '└') {
+			var last bool = r == '└';
+
+			if (test_runes(data, "── ", pos)) {
+				pos += len("── ");
+
+				var file string = "";
+
+				valid = false;
+
+				for pos < len(data) {
+					r, s = utf8.DecodeRune(data[pos:]);
+					pos += s;
+
+					if (r == '\n') {
+						valid = true;
+						break;
+					}
+
+					file += string(r);
+				}
+
+				if (!valid) {
+					return "", nil, false;
+				}
+
+				contents = append(contents, file);
+			} else {
+				return "", nil, false;
+			}
+
+			if (last) {
+				break;
+			}
+		} else {
+			return "", nil, false;
+		}
+	}
+
+	return name, contents, true;
+}
+
 func main() {
 	var stdin *bufio.Reader = bufio.NewReader(os.Stdin);
 
@@ -166,43 +255,17 @@ func main() {
 									if (pstatus(res.StatusCode())) {
 										goto cmddone;
 									} else if (res.StatusCode() == 200) {
-										if (string(res.Header.ContentType()) == "application/x-directory") {
-											var data []byte = res.Body();
+										var data []byte = res.Body();
+										
+										dir_name, dir, is_dir := parse_directory(data);
 
-											var dir string;
-											var i   int;
-
-											for i = 0; i < len(data) && data[i] != '\n'; i++ {
-												dir = dir + string(data[i]);
-											}
-
-											fmt.Printf("%s:\n", dir);
-											i++;
-
-											for (i < len(data)) {
-												r, size := utf8.DecodeRune(data[i:]);
-												i += size;
-
-												if (r == '├' || r == '└') {
-													var name   string;
-
-													i += len("── ");
-													
-													for (data[i] != '\n') {
-														name += string(data[i]);
-														i++;
-													}
-
-													i++;
-													
-													fmt.Printf("%s ", name);
-
-													if (r == '└') {
-														break;
-													}
-												}
-											}
+										if (is_dir) {
+											fmt.Printf("%s:\n", dir_name);
 											
+											for i := 0; i < len(dir); i++ {
+												fmt.Printf("%s ", dir[i]);
+											}
+
 											fmt.Printf("\n");
 										} else {
 											fmt.Printf("XXX not a directory\n");
@@ -236,7 +299,9 @@ func main() {
 
 									var data []byte = res.Body();
 
-									if (string(res.Header.ContentType()) != "application/x-directory") {
+									_, _, is_dir := parse_directory(data);
+
+									if (!is_dir) {
 										if (pstatus(res.StatusCode())) {
 											goto cmddone;
 										} else if (res.StatusCode() == 200) {
@@ -278,7 +343,9 @@ func main() {
 
 										var data []byte = res.Body();
 
-										if (string(res.Header.ContentType()) != "application/x-directory") {
+										_, _, is_dir := parse_directory(data);
+
+										if (!is_dir) {
 											if (pstatus(res.StatusCode())) {
 												goto cmddone;
 											} else if (res.StatusCode() == 200) {

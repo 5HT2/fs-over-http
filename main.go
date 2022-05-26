@@ -224,8 +224,6 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, path string, public bool) {
 			filter := func(s fs.FileInfo) bool { return !Contains(privateDirs, RemoveLastRune(path+s.Name(), '/')) }
 			files = Filter(files, filter)
 		}
-
-		ctx.Response.Header.Set(fasthttp.HeaderContentType, "application/x-directory");
 		
 		filesAmt := len(files)
 		// No files in dir
