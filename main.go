@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -166,6 +167,12 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, path string) {
 	// If not making a directory, don't allow writing directly to fsFolder
 	if path == fsFolder {
 		HandleModifyFsFolder(ctx)
+		return
+	}
+
+	// If dir of file doesn't exist, return an error before reading file or content from the form
+	if _, err := os.Stat(filepath.Dir(path)); os.IsNotExist(err) {
+		HandleInternalServerError(ctx, err)
 		return
 	}
 
