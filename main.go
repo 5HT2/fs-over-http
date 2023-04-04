@@ -4,33 +4,46 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"github.com/valyala/fasthttp"
 	"io/fs"
 	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/valyala/fasthttp"
 )
 
 var (
 	addr         = flag.String("addr", "localhost:6060", "TCP address to listen to")
-	compress     = flag.Bool("compress", true, "Whether to enable transparent response compression")
 	maxBodySize  = flag.Int("maxbodysize", 100*1024*1024, "MaxRequestBodySize, defaults to 100MiB")
 	authToken    = []byte(ReadFileUnsafe("token", true))
+	userTokens   = ReadUserTokens()
 	fsFolder     = "filesystem/"
 	publicFolder = "filesystem/public/"
 	privateDirs  = ReadNonEmptyLines("private_folders", publicFolder)
 	ownerPerm    = os.FileMode(0700)
 )
 
+type UserToken struct {
+	Paths map[string]UserPerm `json:"paths,omitempty"`
+}
+
+type UserPerm struct {
+	AllowOverwrite bool     `json:"allow_overwrite"`
+	AllowMkDir     bool     `json:"allow_mkdir"`
+	AllowMethods   []string `json:"allow_methods"`
+}
+
 func main() {
 	flag.Parse()
 	//goland:noinspection ALL
-	log.Printf("- Running fs-over-http on http://" + *addr)
+	log.Printf("- Running fs-over-http on http://%s", *addr)
+	log.Printf("- Loaded %v user tokens", len(userTokens))
 
 	// If fsFolder or publicFolder don't exist
 	SafeMkdir(fsFolder)
@@ -100,6 +113,7 @@ func (ln tcpKeepaliveListener) Accept() (net.Conn, error) {
 func RequestHandler(ctx *fasthttp.RequestCtx) {
 	// The authentication key provided with said Auth header
 	auth := ctx.Request.Header.Peek("Auth")
+	method := string(ctx.Request.Header.Method())
 
 	// requestPath is prefixed with a /
 	path := TrimFirstRune(string(ctx.Path()))
@@ -117,13 +131,13 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	// Make sure Auth key is correct
-	if !bytes.Equal(auth, authToken) {
+	// Make sure Auth key is correct, or that we have an allowable user token
+	if !bytes.Equal(auth, authToken) && !VerifyUserToken(string(auth), method, path, ctx.FormValue("dir")) {
 		HandleForbidden(ctx)
 		return
 	}
 
-	switch string(ctx.Request.Header.Method()) {
+	switch method {
 	case fasthttp.MethodGet:
 		HandleServeFile(ctx, filePath, false)
 	case fasthttp.MethodPost:
@@ -379,4 +393,56 @@ func PrintResponsePath(ctx *fasthttp.RequestCtx, path string, folder bool) {
 	} else {
 		ctx.Response.Header.Set("X-Modified-Path", RemoveLastRune(path, '/')+"\n")
 	}
+}
+
+func VerifyUserToken(auth, method, path string, dir []byte) bool {
+	token, ok := userTokens[auth]
+	if !ok {
+		return false
+	}
+
+	// First we want to select the longest allowed path that matches
+	var allowedPerm *UserPerm = nil
+	var foundPath = ""
+
+	for allowPath, perms := range token.Paths {
+		// If the path is prefixed with allowPath, select the current longest path that we've found, and that the path is longer than the allowPath
+		if strings.HasPrefix(path, allowPath) && len(allowPath) > len(foundPath) && len(path) != len(allowPath) {
+			allowedPerm = &perms
+			foundPath = allowPath
+		}
+	}
+
+	if allowedPerm == nil || len(foundPath) == 0 {
+		return false
+	}
+
+	// Ensure the request method is allowed on this path
+	var foundMethod = ""
+	for _, allowedMethod := range allowedPerm.AllowMethods {
+		if method == allowedMethod {
+			foundMethod = method
+			break
+		}
+	}
+
+	if len(foundMethod) == 0 {
+		return false
+	}
+
+	// Ensure that if the method is a POST or PUT, and we don't allow overwriting, that the file does not exist
+	if !allowedPerm.AllowOverwrite && (foundMethod == http.MethodPost || foundMethod == http.MethodPut) {
+		_, err := os.ReadFile(fsFolder + path)
+		if err == nil || !strings.HasSuffix(err.Error(), "no such file or directory") {
+			return false
+		}
+	}
+
+	// Ensure that we're not making a dir if allowMkDir is not enabled
+	if !allowedPerm.AllowMkDir && len(dir) > 0 {
+		return false
+	}
+
+	// We have checked all the permission parameters, allow this token to execute its FOH operation now
+	return true
 }

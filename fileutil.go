@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"io/fs"
 	"log"
 	"net/http"
@@ -30,6 +31,20 @@ func ReadFileUnsafe(file string, removeNewline bool) string {
 func ReadFile(file string) (string, error) {
 	dat, err := os.ReadFile(file)
 	return string(dat), err
+}
+
+func ReadUserTokens() map[string]UserToken {
+	dat, err := os.ReadFile("user_tokens.json")
+	if err != nil {
+		return map[string]UserToken{}
+	}
+
+	var tokens map[string]UserToken
+	if err := json.Unmarshal(dat, &tokens); err != nil || tokens == nil {
+		return map[string]UserToken{}
+	}
+
+	return tokens
 }
 
 func WriteToFile(file string, content string) error {

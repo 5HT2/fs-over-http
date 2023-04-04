@@ -1,4 +1,5 @@
 token
+user_tokens.json
 .idea/
 filesystem/
 fs-over-http
