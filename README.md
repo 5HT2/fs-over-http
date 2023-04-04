@@ -79,7 +79,7 @@ docker pull l1ving/fs-over-http:latest
 - [x] Move error handling to ListenAndServe instead of individually sending the error
   - [x] Switch to using `X-Error-Message` instead of printing it out, add a newline end of normal responses
 - [x] Refactor use of JoinStr to `fmt.Sprintf/Sprintln` and `+`
-- [ ] Set `ReadTimeout` and `WriteTimeout` to prevent abuse
+- [x] Set `ReadTimeout` and `WriteTimeout` to prevent abuse
 - [x] Add Docker image
   - [x] Add CI service
 - [X] Add Caddyfile example
