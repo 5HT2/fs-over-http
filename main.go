@@ -74,6 +74,9 @@ func main() {
 				keepalivePeriod: s.TCPKeepalivePeriod,
 			})
 		}
+		s.ReadTimeout = 10 * time.Minute
+		s.WriteTimeout = 10 * time.Minute
+		s.MaxConnsPerIP = 2
 		return s.Serve(ln)
 	}
 
