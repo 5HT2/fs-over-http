@@ -19,7 +19,7 @@ import time
 CDN_NAME = "frogg.ie"
 BASE_URL = "https://{}/".format(CDN_NAME)
 FOLDER_P = "https://i.l1v.in/public/i/"
-S_FORMAT = "-region"
+S_FORMAT = "--region"
 FILENAME = datetime.now().strftime("%Y-%m-%d-%H:%M:%S.png")
 FILEPATH = os.environ.get('HOME') + "/pictures/screenshots/" + FILENAME
 
