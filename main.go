@@ -22,7 +22,7 @@ var (
 	addr         = flag.String("addr", "localhost:6060", "TCP address to listen to")
 	maxBodySize  = flag.Int("maxbodysize", 100*1024*1024, "MaxRequestBodySize, defaults to 100MiB")
 	authToken    = []byte(ReadFileUnsafe("token", true))
-	userTokens   = ReadUserTokens()
+	userTokens   = ReadUserTokens() // [token]UserToken
 	fsFolder     = "filesystem/"
 	publicFolder = "filesystem/public/"
 	privateDirs  = ReadNonEmptyLines("private_folders", publicFolder)
@@ -30,7 +30,7 @@ var (
 )
 
 type UserToken struct {
-	Paths map[string]UserPerm `json:"paths,omitempty"`
+	Paths map[string]UserPerm `json:"paths,omitempty"` // [path]UserPerm
 }
 
 type UserPerm struct {
