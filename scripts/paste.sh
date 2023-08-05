@@ -8,12 +8,17 @@
 # shellcheck disable=SC1091
 source "$HOME/.env"
 
+EXT="txt"
 URL="https://i.l1v.in"
 CDN_URL="https://cdn.l1v.in" # This is a reverse proxy to $URL/media/
 APP_NAME="cdn.l1v.in"
 
+if [[ -n "$1" ]]; then
+    EXT="$1"
+fi
+
 # Set default filename and path
-filename="$(date +"paste-%s.txt")"
+filename="$(date +"paste-%s.$EXT")"
 filepath="$HOME/.cache/$filename"
 
 printf 'Type your paste and press \u001b[31mCtrl D\u001b[0m when finished\n'
