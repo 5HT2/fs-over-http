@@ -4,6 +4,7 @@ IMG    := ${NAME}:${TAG}
 LATEST := ${NAME}:latest
 
 fs-over-http: clean
+	go get -u github.com/ferluci/fast-realip
 	go get -u github.com/valyala/fasthttp
 	go build .
 
