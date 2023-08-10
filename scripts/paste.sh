@@ -10,8 +10,8 @@ source "$HOME/.env"
 
 EXT="txt"
 URL="https://i.l1v.in"
-CDN_URL="https://cdn.l1v.in" # This is a reverse proxy to $URL/media/
-APP_NAME="cdn.l1v.in"
+CDN_URL="https://cdn.frogg.ie" # This is a reverse proxy to $URL/media/
+APP_NAME="cdn.frogg.ie"
 
 if [[ -n "$1" ]]; then
     EXT="$1"
