@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"github.com/h2non/filetype"
 	"io/fs"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func ReadFileUnsafe(file string, removeNewline bool) string {
@@ -64,6 +66,28 @@ func IsDirectory(path string) (bool, error) {
 	} else {
 		return false, nil
 	}
+}
+
+func GetFileContentTypeExt(content []byte, file string) (string, error) {
+	ext := filepath.Ext(file)
+
+	switch ext {
+	case ".txt", ".text":
+		return "text/plain; charset=utf-8", nil
+	case ".htm", ".html":
+		return "text/html", nil
+	case ".css":
+		return "text/css", nil
+	case ".js", ".mjs":
+		return "application/javascript", nil
+	case ".mov":
+		return "video/quicktime", nil
+	case ".json":
+		return "application/json; charset=utf-8", nil
+	}
+
+	kind, err := filetype.Match(content)
+	return kind.MIME.Type, err
 }
 
 // ReadLines reads a whole file into memory

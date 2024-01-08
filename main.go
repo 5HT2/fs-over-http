@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/h2non/filetype"
 	"github.com/valyala/fasthttp"
 )
 
@@ -321,20 +320,20 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, path string, public bool) {
 		return
 	}
 
-	kind, err := filetype.Match(content)
+	kind, err := GetFileContentTypeExt(content, path)
 
 	if err != nil {
 		HandleInternalServerError(ctx, err)
 		return
 	}
 
-	if kind == filetype.Unknown {
+	if len(kind) == 0 {
 		HandleGeneric(ctx, fasthttp.StatusInternalServerError, "Unknown file type")
 		return
 	}
 
 	// Serve the file itself
-	ctx.Response.Header.Set(fasthttp.HeaderContentType, kind.MIME.Value)
+	ctx.Response.Header.Set(fasthttp.HeaderContentType, kind)
 	fmt.Fprint(ctx, string(content))
 }
 
