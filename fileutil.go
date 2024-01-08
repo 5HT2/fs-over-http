@@ -5,13 +5,12 @@ import (
 	"encoding/json"
 	"io/fs"
 	"log"
-	"net/http"
 	"os"
-	"path/filepath"
 )
 
 func ReadFileUnsafe(file string, removeNewline bool) string {
-	content, err := ReadFile(file)
+	b, err := os.ReadFile(file)
+	content := string(b)
 
 	if err != nil {
 		log.Printf("- Failed to read '%s'", file)
@@ -26,11 +25,6 @@ func ReadFileUnsafe(file string, removeNewline bool) string {
 	}
 
 	return content
-}
-
-func ReadFile(file string) (string, error) {
-	dat, err := os.ReadFile(file)
-	return string(dat), err
 }
 
 func ReadUserTokens() map[string]UserToken {
@@ -70,45 +64,6 @@ func IsDirectory(path string) (bool, error) {
 	} else {
 		return false, nil
 	}
-}
-
-func GetFileContentTypeExt(out *os.File, file string) (string, error) {
-	ext := filepath.Ext(file)
-
-	switch ext {
-	case ".txt", ".text":
-		return "text/plain; charset=utf-8", nil
-	case ".htm", ".html":
-		return "text/html", nil
-	case ".css":
-		return "text/css", nil
-	case ".js", ".mjs":
-		return "application/javascript", nil
-	case ".mov":
-		return "video/quicktime", nil
-	case ".json":
-		return "application/json; charset=utf-8", nil
-	}
-
-	return GetFileContentType(out)
-}
-
-// GetFileContentType detects the content type
-// and returns a valid MIME type
-func GetFileContentType(out *os.File) (string, error) {
-	// Only the first 512 bytes are used to sniff the content type.
-	buffer := make([]byte, 512)
-
-	_, err := out.Read(buffer)
-	if err != nil {
-		return "", err
-	}
-
-	// Use the net/http package's handy DetectContentType function. Always returns a valid
-	// content-type by returning "application/octet-stream" if no others seemed to match.
-	contentType := http.DetectContentType(buffer)
-
-	return contentType, nil
 }
 
 // ReadLines reads a whole file into memory
