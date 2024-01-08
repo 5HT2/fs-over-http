@@ -9,6 +9,7 @@ RUN go build -o foh-bin .
 
 ENV ADDRESS "localhost:6060"
 ENV MAXBODYSIZE "104857600"
-CMD /fs-over-http/foh-bin -maxbodysize $MAXBODYSIZE -addr $ADDRESS
+ENV DEBUG "false"
+CMD /fs-over-http/foh-bin -maxbodysize $MAXBODYSIZE -addr $ADDRESS -debug $DEBUG
 
 WORKDIR /foh-files
