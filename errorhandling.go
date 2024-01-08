@@ -9,6 +9,18 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+func HandleDebug(ctx *fasthttp.RequestCtx, method, path string) {
+	if *debug == true {
+		log.Printf(
+			"- Debug: %s %s (%s) on %s\n",
+			realip.FromRequest(ctx),
+			method,
+			ctx.Request.Header.Peek("Auth"),
+			ctx.RequestURI(),
+		)
+	}
+}
+
 func HandleModifyFsFolder(ctx *fasthttp.RequestCtx) {
 	HandleGeneric(ctx, fasthttp.StatusMethodNotAllowed,
 		"Cannot "+string(ctx.Request.Header.Method())+" on path \""+fsFolder+"\"")

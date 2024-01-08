@@ -21,7 +21,8 @@ import (
 var (
 	addr         = flag.String("addr", "localhost:6060", "TCP address to listen to")
 	maxBodySize  = flag.Int("maxbodysize", 100*1024*1024, "MaxRequestBodySize, defaults to 100MiB")
-	authToken    = []byte(ReadFileUnsafe("token", true))
+	debug        = flag.Bool("debug", false, "Debug log")
+	authToken    = ReadFileUnsafe("token", true)
 	userTokens   = ReadUserTokens() // [token]UserToken
 	fsFolder     = "filesystem/"
 	publicFolder = "filesystem/public/"
@@ -121,6 +122,9 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	// requestPath is prefixed with a /
 	path := TrimFirstRune(string(ctx.Path()))
 	filePath := fsFolder + path
+
+	// Print debug messages before anything
+	HandleDebug(ctx, method, path)
 
 	if len(auth) == 0 && ctx.IsGet() {
 		filePath = publicFolder + path
