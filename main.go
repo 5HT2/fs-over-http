@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -116,7 +115,7 @@ func (ln tcpKeepaliveListener) Accept() (net.Conn, error) {
 
 func RequestHandler(ctx *fasthttp.RequestCtx) {
 	// The authentication key provided with said Auth header
-	auth := ctx.Request.Header.Peek("Auth")
+	auth := string(ctx.Request.Header.Peek("Auth"))
 	method := string(ctx.Request.Header.Method())
 
 	// requestPath is prefixed with a /
@@ -139,7 +138,7 @@ func RequestHandler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// Make sure Auth key is correct, or that we have an allowable user token
-	if !bytes.Equal(auth, authToken) && !VerifyUserToken(string(auth), method, path, ctx.FormValue("dir")) {
+	if (auth != authToken) && !VerifyUserToken(auth, method, path, ctx.FormValue("dir")) {
 		HandleForbidden(ctx)
 		return
 	}
