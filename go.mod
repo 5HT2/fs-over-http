@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/ferluci/fast-realip v1.0.1
-	github.com/h2non/filetype v1.1.3
 	github.com/valyala/fasthttp v1.50.0
 )
 
