@@ -308,7 +308,11 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, path string, public bool) {
 		return
 	}
 
-	content, err := ReadFile(path)
+	content, err := os.ReadFile(path)
+	if err != nil {
+		HandleInternalServerError(ctx, err)
+		return
+	}
 
 	// File is empty
 	if len(content) == 0 {
@@ -316,29 +320,21 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, path string, public bool) {
 		return
 	}
 
+	kind, err := GetFileContentTypeExt(content, path)
+
 	if err != nil {
 		HandleInternalServerError(ctx, err)
 		return
 	}
 
-	// Open the file and handle errors
-	f, err := os.Open(path)
-	if err != nil {
-		HandleInternalServerError(ctx, err)
-		return
-	}
-	defer f.Close()
-
-	// Get the contentType
-	contentType, err := GetFileContentTypeExt(f, path)
-	if err != nil {
-		HandleInternalServerError(ctx, err)
+	if len(kind) == 0 {
+		HandleGeneric(ctx, fasthttp.StatusInternalServerError, "Unknown file type")
 		return
 	}
 
 	// Serve the file itself
-	ctx.Response.Header.Set(fasthttp.HeaderContentType, contentType)
-	fmt.Fprint(ctx, content)
+	ctx.Response.Header.Set(fasthttp.HeaderContentType, kind)
+	fmt.Fprint(ctx, string(content))
 }
 
 func HandleAppendFile(ctx *fasthttp.RequestCtx, path string) {
@@ -355,10 +351,11 @@ func HandleAppendFile(ctx *fasthttp.RequestCtx, path string) {
 	}
 
 	contentStr := string(content) + "\n"
-	oldContent, err := ReadFile(path)
+	oldContent, err := os.ReadFile(path)
 
+	// Append to old content only if the file didn't error, otherwise we just write to the file directly
 	if err == nil {
-		contentStr = oldContent + contentStr
+		contentStr = string(oldContent) + contentStr
 	}
 
 	err = WriteToFile(path, contentStr)
