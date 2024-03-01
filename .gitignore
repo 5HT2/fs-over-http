@@ -1,6 +1,7 @@
 token
 user_tokens.json
 .idea/
+.vscode/
 filesystem/
 fs-over-http
 private_folders
