@@ -210,17 +210,31 @@ func HandlePostRequest(ctx *fasthttp.RequestCtx, path string) {
 		return
 	}
 
-	// If the content key was provided, write to said file
-	content := ctx.FormValue("content")
-	if len(content) > 0 {
-		err = WriteToFile(path, strings.ReplaceAll(string(content), "\\n", "\n"))
+	writeFile := func(content []byte) (success bool) {
+		if len(content) > 0 {
+			err = WriteToFile(path, strings.ReplaceAll(string(content), "\\n", "\n"))
 
-		if err != nil {
-			HandleInternalServerError(ctx, err)
-			return
+			if err != nil {
+				HandleInternalServerError(ctx, err)
+				return
+			}
+
+			PrintResponsePath(ctx, path, false)
+			return true
 		}
 
-		PrintResponsePath(ctx, path, false)
+		return
+	}
+
+	// If the content key was provided, write to said file
+	content := ctx.FormValue("content")
+	if writeFile(content) {
+		return
+	}
+
+	// If the content header was provided, write to said file
+	contentHeader := ctx.Request.Header.Peek("Content")
+	if writeFile(contentHeader) {
 		return
 	}
 
