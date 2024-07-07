@@ -72,6 +72,13 @@ curl -X POST -H "Auth: $TOKEN" localhost:6060 -F "dir=my_folder"
 curl -X POST -H "Auth: $TOKEN" localhost:6060/myfile.txt -F "content=I created this file with http!"
 ```
 
+#### Write to a file with a header
+
+```bash
+# Note that this will overwrite an existing file
+curl -X POST -H "Auth: $TOKEN" localhost:6060/myfile.txt -H "Content: I created this file with http!"
+```
+
 #### Append to a file
 
 ```bash
