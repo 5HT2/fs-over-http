@@ -265,7 +265,7 @@ func HandleServeFile(ctx *fasthttp.RequestCtx, path string, public bool) {
 			filter := func(s fs.FileInfo) bool { return !Contains(privateDirs, RemoveLastRune(path+s.Name(), '/')) }
 			files = Filter(files, filter)
 		}
-
+		
 		filesAmt := len(files)
 		// No files in dir
 		if filesAmt == 0 {
