@@ -1,6 +1,6 @@
 module github.com/5HT2/fs-over-http
 
-go 1.17
+go 1.24
 
 require (
 	github.com/ferluci/fast-realip v1.0.1
@@ -9,6 +9,6 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
-	github.com/klauspost/compress v1.17.5 // indirect
+	github.com/klauspost/compress v1.18.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 )
